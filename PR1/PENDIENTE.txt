@@ -1,0 +1,63 @@
+General
+-------
+- El modelo XML: pasar build_mjcf() (y camera_xyaxes) de planta_4_cintas.py a un
+  archivo src/modelo.py con las constantes que usa. Ahora mismo en
+  PlantaIndustrial.inicializar() self.model es None, asi que no arranca.
+- Las constantes estan repetidas en varios archivos, habria que juntarlas en un
+  src/config.py.
+- Robot: no esta metido (meter RobotPanda usando robot.py sin tocar la IK).
+  build_mjcf solo no tiene el Panda, hay que usar robot.build_model_with_franka.
+- requirements.txt actualizar si hace falta.
+
+CintaTransportadora
+-------------------
+- fuerza_transporte(): solo estan la cinta 1 (id 0) y la del horno (id 4).
+  Faltan las cintas 2, 3 y 4 (copiar la logica de transport_force()).
+- actualizar_rodillos(): esta vacio. Tiene que poner data.ctrl de sus actuadores
+  a +-5.5 si esta activa o 0 si esta parada (ver initialize_belt_rollers()).
+  Llamarlo al conmutar la cinta y al iniciar.
+- Lo de la direccion no se usa todavia.
+
+CamaraInspeccion
+----------------
+- detectar_forma(): ya saca el contorno mas grande y aproxima el poligono pero
+  no decide la forma. Falta: circularidad = 4*pi*area/perimetro^2, si es alta
+  -> "cilindro", si len(aprox) == 4 -> "caja", y otras.
+- El umbral 100 es a ojo, probar o usar color (HSV) porque la cinta es oscura.
+- Ojo: la camara "overview" no tiene cinta y no deberia detectar nada.
+- Cuando deja de detectar la cinta no vuelve a arrancar. Decidir como se
+  reanuda (con tecla o automatico tras X segundos).
+
+ObjetoIndustrial / Caja / Cilindro
+----------------------------------
+- bloquear_rotacion(): vacio (ver lock_object_rotations()).
+- actualizar_segmento(): vacio, pasar update_segment() aqui usando
+  CORNER_SWITCH.
+- Cilindro.centrar_en_cinta(): vacio (ver lock_cylinders_to_belt_center()).
+- Falta metodo para devolverlo a la cinta 1 cuando entra al horno
+  (send_object_back_to_line()).
+
+Horno
+-----
+- geom_id esta a -1. El horno en el XML no tiene geom con nombre, hay que
+  ponerle name="oven_geom" a uno de los geoms del body "oven" y buscarlo con
+  mj_name2id.
+- disminuir_temperatura() no comprueba temp_min.
+- procesar_pieza(): vacio. Registrar la pieza, subir temperatura, devolver el
+  objeto a la linea.
+- Estado encendido/apagado no se usa.
+- Llamar a actualizar_color() en cada paso de la simulacion.
+
+PlantaIndustrial
+----------------
+- inicializar(): crear el modelo, buscar geom del horno, viewer de MuJoCo
+  (mujoco.viewer.launch_passive), rodillos.
+- aplicar_transporte(): falta cambio de segmento, entrada al horno y reset de
+  piezas que se caen (ver apply_transport()).
+- actualizar(): faltan bloquear rotaciones, centrar cilindros, horno.
+- mostrar_camaras(): falta la barra de estado (tiempo, ON/OFF cintas, piezas
+  del horno).
+- procesar_teclado(): faltan S (captura), T y H (robot), y teclas para subir
+  y bajar temperatura del horno. Al conmutar cinta llamar a actualizar_rodillos.
+- ejecutar(): falta viewer.sync() y cerrar el viewer en el finally.
+
