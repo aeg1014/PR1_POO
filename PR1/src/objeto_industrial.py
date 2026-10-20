@@ -1,6 +1,6 @@
 import mujoco
 import numpy as np
-from src.config import LOCK_OBJECT_ROTATION, CORNER_SWITCH, LANE, OBJECT_REST_Z, LOCK_CYLINDERS_TO_CENTERLINE, CYLINDER_OBJECT_IDS, TURN_START, BRANCH_Y
+from src.config import *
 
 class ObjetoIndustrial:
 
@@ -46,7 +46,7 @@ class ObjetoIndustrial:
             data.qpos[qadr + 3:qadr + 7] = [1.0, 0.0, 0.0, 0.0]
             data.qvel[dadr + 3:dadr + 6] = 0.0
 
-    def update_segment(self, pos, segmento, obj_index):
+    def update_segment(self, pos, segmento):
         """Máquina de estados del circuito. La Cinta 5 solo la activa el robot."""
         x, y = float(pos[0]), float(pos[1])
 
@@ -75,6 +75,7 @@ class Caja(ObjetoIndustrial):
 
     def __init__(self, id, segmento, z_reposo):
         super().__init__(id, "caja", segmento, z_reposo)
+
 
 
 class Cilindro(ObjetoIndustrial):

@@ -1,3 +1,6 @@
+
+
+
 class Horno:
 
     def __init__(self, geom_id=-1, temperatura_inicial=20.0, temp_min=20.0, temp_max=250.0):
@@ -19,7 +22,10 @@ class Horno:
             self.temperatura = self.temp_max
 
     def disminuir_temperatura(self, decremento):
-        self.temperatura -= decremento
+        if self.temperatura - decremento < self.temp_min:
+            self.temperatura = self.temp_min
+        else:
+            self.temperatura -= decremento
 
     def obtener_temperatura(self):
         return self.temperatura
@@ -35,4 +41,8 @@ class Horno:
         model.geom_rgba[self.geom_id] = color
 
     def procesar_pieza(self, objeto):
-        pass
+        self.registrar_pieza()
+        self.aumentar_temperatura(1)
+        self.pieza_nueva = False
+
+

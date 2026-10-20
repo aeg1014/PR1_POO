@@ -21,7 +21,7 @@ class PlantaIndustrial:
         self.viewer = None
         self.pausa = False
         self.corriendo = True
-        self.objeto_industrial = ObjetoIndustrial()
+        self.objeto_industrial = ObjetoIndustrial(id=0, forma="CAJA", segmento="SEGMENTO", z_reposo=0.0)
 
         self.cintas = [
             CintaTransportadora(0, "Cinta 1", BELT_SPEED, [1, 0], ["belt_act_b1", "belt_act_b2"], 1.0),
@@ -55,7 +55,7 @@ class PlantaIndustrial:
         self.data = mujoco.MjData(self.model)
 
         for obj in self.objetos:
-            obj.cargar_ids(self.model)
+            obj.get_ids(self.model)
 
         self.reiniciar_objetos()
 
@@ -158,3 +158,8 @@ class PlantaIndustrial:
             if self.renderer is not None:
                 self.renderer.close()
             cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    planta = PlantaIndustrial()
+    planta.ejecutar()
+

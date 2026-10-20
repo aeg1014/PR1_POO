@@ -1,5 +1,5 @@
 import cv2
-import numpy as np
+
 
 
 class CamaraInspeccion:
@@ -35,7 +35,7 @@ class CamaraInspeccion:
         perimetro = cv2.arcLength(c, True)
         aprox = cv2.approxPolyDP(c, 0.04 * perimetro, True)
 
-        # falta decidir la forma con los vertices / circularidad
+
         return None
 
     def actualizar(self, renderer, data):
@@ -58,3 +58,7 @@ class CamaraInspeccion:
             cv2.putText(img, estado, (12, img.shape[0] - 12),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.48, (245, 245, 245), 1, cv2.LINE_AA)
         return img
+
+if __name__ == "__main__":
+    camara = CamaraInspeccion(nombre="camara_inspeccion", titulo="Camara de Inspección")
+    camara.capturar()
