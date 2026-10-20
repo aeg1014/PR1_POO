@@ -12,7 +12,7 @@ class Horno:
         self.encendido = True
         self.pieza_nueva = False
 
-    def registrar_pieza(self):
+    def registrar_pieza(self, objeto):
         self.numero_piezas += 1
         self.pieza_nueva = True
 
@@ -41,7 +41,7 @@ class Horno:
         model.geom_rgba[self.geom_id] = color
 
     def procesar_pieza(self, objeto):
-        self.registrar_pieza()
+        self.registrar_pieza(objeto)
         self.aumentar_temperatura(1)
         self.pieza_nueva = False
 

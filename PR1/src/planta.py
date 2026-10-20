@@ -80,7 +80,7 @@ class PlantaIndustrial:
     def aplicar_transporte(self, segments, model, data, dof_addrs):
         self.data.xfrc_applied[:] = 0.0
 
-        for i, obj in self.objetos:
+        for i, obj in enumerate(self.objetos):
             pos = obj.obtener_posicion(self.data)
             vel = obj.obtener_velocidad(self.data)
             dadr = dof_addrs[i]
