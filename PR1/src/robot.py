@@ -27,16 +27,16 @@ from src.config import (
     ROBOT_TARGET_TOL, ROBOT_ORI_TOL_RAD, ROBOT_STATE_DWELL, ROBOT_STATE_TIMEOUT,
     ROBOT_IK_LOG_PERIODO,
     ROBOT_MANUAL_POS_GAIN, ROBOT_MANUAL_ORI_GAIN, ROBOT_MANUAL_MAX_QVEL,
-    ROBOT_HOLD_KP, ROBOT_HOLD_KD, TCP_POS, CONFIG_ROBOT,
+    ROBOT_HOLD_KP, ROBOT_HOLD_KD, TCP_POS, ROBOT_CONFIG,
 )
 
 
 
 def make_config(lane=None, branch_y=None, branch_speed=None):
-    """Devuelve una copia de CONFIG_ROBOT (config.py). Si se pasan lane,
+    """Devuelve una copia de ROBOT_CONFIG (config.py). Si se pasan lane,
     branch_y o branch_speed se sobrescriben los valores que dependen de ellos."""
-    cfg = dict(CONFIG_ROBOT)
-    cfg["pick_object_ids"] = set(CONFIG_ROBOT["pick_object_ids"])
+    cfg = dict(ROBOT_CONFIG)
+    cfg["pick_object_ids"] = set(ROBOT_CONFIG["pick_object_ids"])
     if lane is not None:
         cfg["pick_x"] = -float(lane)
     if branch_y is not None:

@@ -2,7 +2,7 @@ import numpy as np
 
 from src import robot
 from src.config import (
-    MODO_PRUEBA_IK, IK_OBJETIVO_POSICION, IK_OBJETIVO_RPY, IK_MARCO_ORIENTACION,
+    ROBOT_IK_TEST_MODE, ROBOT_IK_TARGET_POSITION, ROBOT_IK_TARGET_RPY_DEG, ROBOT_IK_ORIENTATION_FRAME,
 )
 
 
@@ -10,13 +10,13 @@ class RobotPanda:
     """Envuelve el módulo robot.py (IK ya hecha) para usarlo como un objeto.
     La cinemática inversa no se toca: solo se llaman sus funciones."""
 
-    def __init__(self, config, modo_prueba_ik=MODO_PRUEBA_IK):
+    def __init__(self, config, modo_prueba_ik=ROBOT_IK_TEST_MODE):
         self.config = config
         self.modo_prueba_ik = modo_prueba_ik
 
-        self.objetivo_posicion = np.array(IK_OBJETIVO_POSICION, dtype=float)
-        self.objetivo_rpy = np.array(IK_OBJETIVO_RPY, dtype=float)
-        self.marco_orientacion = IK_MARCO_ORIENTACION
+        self.objetivo_posicion = np.array(ROBOT_IK_TARGET_POSITION, dtype=float)
+        self.objetivo_rpy = np.array(ROBOT_IK_TARGET_RPY_DEG, dtype=float)
+        self.marco_orientacion = ROBOT_IK_ORIENTATION_FRAME
         self.pinza_abierta = True
 
         self.ids = None

@@ -1,4 +1,4 @@
-from src.planta import PlantaIndustrial
+from src.PlantaIndustrial import PlantaIndustrial
 
 
 def main():

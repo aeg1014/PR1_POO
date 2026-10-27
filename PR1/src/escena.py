@@ -1,10 +1,5 @@
 """
 Modelo 3D de la planta (XML de MuJoCo).
-
-Este módulo es prácticamente el mismo build_mjcf() del código original.
-Solo contiene la geometría de la planta: cintas, barandillas, rodillos,
-cámaras, isla del robot y horno. Las piezas ya no están escritas aquí,
-cada ObjetoIndustrial genera su propio trozo de XML.
 """
 
 import numpy as np
@@ -29,7 +24,7 @@ from src.config import (
     OVEN_CENTER_X,
 )
 
-# Todas las constantes de la escena están ahora en config.py.
+
 
 
 def camera_xyaxes(cam_pos, target):

@@ -6,21 +6,21 @@ import mujoco.viewer
 import numpy as np
 
 from src import escena, robot
-from src.camara_inspeccion import CamaraInspeccion
-from src.cinta_transportadora import CintaTransportadora
-from src.horno import Horno
-from src.objeto_industrial import Caja, Cilindro
-from src.robot_panda import RobotPanda
+from src.CamaraInspeccion import CamaraInspeccion
+from src.CintaTransportadora import CintaTransportadora
+from src.Horno import Horno
+from src.ObjetoIndustrial import Caja, Cilindro
+from src.RobotPanda import RobotPanda
 from src.config import (
-    CONFIG_ROBOT, LANE, OVEN_ENTRY_X,
-    CINTAS, CIRCUITO_CINTAS, VELOCIDAD_CINTAS, INDICE_CINTA_HORNO,
+    ROBOT_CONFIG, LANE, OVEN_ENTRY_X,
+    CINTAS, CIRCUITO_CINTAS, BELT_SPEED, INDICE_CINTA_HORNO,
     NOMBRES_CAMARAS, PIEZAS, POSICIONES_INICIALES,
     HORNO_GEOM, HORNO_PASO_TECLADO,
     REAPARICION_HORNO_X0, REAPARICION_HORNO_PASO,
     REAPARICION_CAIDA_X0, REAPARICION_CAIDA_PASO,
-    MOSTRAR_VISOR, MODO_PRUEBA_IK,
-    VENTANA, ANCHO_CAMARA, ALTO_CAMARA, FPS_CAMARAS, ALTO_BARRA_ESTADO,
-    CAMARA_VISOR, CARPETA_CAPTURAS,
+    SHOW_MUJOCO_VIEWER, ROBOT_IK_TEST_MODE,
+    VENTANA, CAM_W, CAM_H, CAM_FPS, ALTO_BARRA_ESTADO,
+    CAMARA_VISOR, OUTPUT_DIR,
 )
 
 
@@ -28,12 +28,12 @@ class PlantaIndustrial:
     """Coordina todos los elementos de la planta y contiene el bucle principal."""
 
     VENTANA = VENTANA
-    ANCHO_CAMARA = ANCHO_CAMARA
-    ALTO_CAMARA = ALTO_CAMARA
-    FPS_CAMARAS = FPS_CAMARAS
-    VELOCIDAD_CINTAS = VELOCIDAD_CINTAS
+    CAM_W = CAM_W
+    CAM_H = CAM_H
+    CAM_FPS = CAM_FPS
+    BELT_SPEED = BELT_SPEED
 
-    def __init__(self, mostrar_visor=MOSTRAR_VISOR, modo_prueba_ik=MODO_PRUEBA_IK):
+    def __init__(self, mostrar_visor=SHOW_MUJOCO_VIEWER, modo_prueba_ik=ROBOT_IK_TEST_MODE):
         self.mostrar_visor = mostrar_visor
 
         self.cintas = self._crear_cintas()
@@ -41,7 +41,7 @@ class PlantaIndustrial:
         self.camaras = self._crear_camaras()
         self.objetos = self._crear_objetos()
         self.horno = Horno(HORNO_GEOM, OVEN_ENTRY_X)
-        self.robot = RobotPanda(CONFIG_ROBOT, modo_prueba_ik)
+        self.robot = RobotPanda(ROBOT_CONFIG, modo_prueba_ik)
 
         self.model = None
         self.data = None
@@ -52,18 +52,17 @@ class PlantaIndustrial:
         self.en_marcha = False
         self.mosaico = None
         self._ultimo_render = -1.0
-        self.carpeta_capturas = CARPETA_CAPTURAS
+        self.carpeta_capturas = OUTPUT_DIR
 
     # ------------------------------------------------------------------
     # Creación de los elementos
     # ------------------------------------------------------------------
     def _crear_cintas(self):
-        """Crea las cintas a partir de la tabla CINTAS de config.py."""
         cintas = []
         for datos in CINTAS:
             datos = dict(datos)
             if datos["velocidad"] is None:
-                datos["velocidad"] = self.VELOCIDAD_CINTAS
+                datos["velocidad"] = self.BELT_SPEED
             cintas.append(CintaTransportadora(**datos))
         # circuito cerrado: 1 -> 2 -> 3 -> 4 -> 1. La cinta 5 no tiene siguiente.
         for origen, destino in CIRCUITO_CINTAS:
@@ -93,7 +92,7 @@ class PlantaIndustrial:
     def inicializar(self):
         xml_objetos = "\n".join(obj.generar_xml() for obj in self.objetos)
         xml = escena.construir_mjcf(xml_objetos)
-        self.model = robot.build_model_with_franka(xml, CONFIG_ROBOT)
+        self.model = robot.build_model_with_franka(xml, ROBOT_CONFIG)
         self.data = mujoco.MjData(self.model)
 
         for cinta in self.cintas:
@@ -105,9 +104,9 @@ class PlantaIndustrial:
 
         self.reiniciar()
 
-        self.renderer = mujoco.Renderer(self.model, height=self.ALTO_CAMARA, width=self.ANCHO_CAMARA)
+        self.renderer = mujoco.Renderer(self.model, height=self.CAM_H, width=self.CAM_W)
         cv2.namedWindow(self.VENTANA, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(self.VENTANA, self.ANCHO_CAMARA * 3, self.ALTO_CAMARA * 2 + ALTO_BARRA_ESTADO)
+        cv2.resizeWindow(self.VENTANA, self.CAM_W * 3, self.CAM_H * 2 + ALTO_BARRA_ESTADO)
 
         if self.mostrar_visor:
             self.visor = mujoco.viewer.launch_passive(self.model, self.data)
@@ -163,7 +162,7 @@ class PlantaIndustrial:
             pos = objeto.posicion(self.data)
             vel = objeto.velocidad(self.data)
             if objeto.numero == self.robot.pieza_reservada():
-                fx, fy = self.robot.fuerza_retencion(pos, vel, CintaTransportadora.FUERZA_MAXIMA)
+                fx, fy = self.robot.fuerza_retencion(pos, vel, CintaTransportadora.MAX_FORCE)
             else:
                 objeto.actualizar_cinta(self.data)
                 fx, fy = objeto.cinta.calcular_fuerza(pos, vel)
@@ -179,11 +178,9 @@ class PlantaIndustrial:
                 objeto.colocar(self.data, x, -LANE, self.cintas[0])
 
     def enviar_pieza_al_horno(self):
-        """Atajo para la demostración: hace lo mismo que la descarga del robot,
-        pone una pieza de la Cinta 4 al principio de la Cinta 5."""
         for objeto in self.objetos:
             if objeto.cinta is self.cintas[3] and objeto.numero != self.robot.pieza_agarrada():
-                cfg = CONFIG_ROBOT
+                cfg = ROBOT_CONFIG
                 objeto.colocar(self.data, cfg["place_x"], cfg["place_y"], self.cinta_horno)
                 mujoco.mj_forward(self.model, self.data)
                 print(f"{objeto} enviado a la Cinta 5")
@@ -196,7 +193,7 @@ class PlantaIndustrial:
     def _toca_actualizar_camaras(self):
         if self.pausada or self._ultimo_render < 0.0:
             return True
-        return self.data.time - self._ultimo_render >= 1.0 / self.FPS_CAMARAS
+        return self.data.time - self._ultimo_render >= 1.0 / self.CAM_FPS
 
     def actualizar_camaras(self):
         imagenes = []
@@ -306,7 +303,7 @@ class PlantaIndustrial:
         cv2.destroyAllWindows()
 
     def _mostrar_ayuda(self):
-        print("\n=== PLANTA INDUSTRIAL (version POO) ===")
+        print("\n=== PLANTA INDUSTRIAL ===")
         print("Circuito: Cinta 1 -> 2 -> 3 -> 4 -> 1. Cinta 5 lleva las piezas al horno.")
         print("Q/ESC salir | P pausa | 1..5 cintas ON/OFF | R reset | S captura")
         print("O horno ON/OFF | +/- temperatura | E manda una pieza de la Cinta 4 al horno")

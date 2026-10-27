@@ -2,8 +2,8 @@ import mujoco
 import numpy as np
 
 from src.config import (
-    CINTA_KP_VELOCIDAD, CINTA_KP_CENTRADO, CINTA_FUERZA_MAXIMA,
-    CINTA_INICIO_GIRO, CINTA_CAMBIO_CINTA, CINTA_VELOCIDAD_RODILLOS,
+    VEL_KP, CENTER_KP, MAX_FORCE,
+    TURN_START, CORNER_SWITCH, CINTA_VELOCIDAD_RODILLOS,
 )
 
 
@@ -11,11 +11,11 @@ class CintaTransportadora:
     """Una cinta de la planta. Sabe si está en marcha y cómo mover las piezas."""
 
     # Atributos de clase: son iguales para todas las cintas
-    KP_VELOCIDAD = CINTA_KP_VELOCIDAD
-    KP_CENTRADO = CINTA_KP_CENTRADO
-    FUERZA_MAXIMA = CINTA_FUERZA_MAXIMA
-    INICIO_GIRO = CINTA_INICIO_GIRO
-    CAMBIO_CINTA = CINTA_CAMBIO_CINTA
+    VEL_KP = VEL_KP
+    CENTER_KP = CENTER_KP
+    MAX_FORCE = MAX_FORCE
+    TURN_START = TURN_START
+    CORNER_SWITCH = CORNER_SWITCH
 
     def __init__(self, numero, nombre, velocidad, direccion, centro, giro=None,
                  rodillos=(), velocidad_rodillos=CINTA_VELOCIDAD_RODILLOS):
@@ -80,10 +80,10 @@ class CintaTransportadora:
         return float(np.dot(pos[:2], self.direccion))
 
     def ha_terminado(self, pos):
-        return self.siguiente is not None and self.avance(pos) >= self.CAMBIO_CINTA
+        return self.siguiente is not None and self.avance(pos) >= self.CORNER_SWITCH
 
     def en_tramo_recto(self, pos):
-        return self.giro is None or self.avance(pos) < self.INICIO_GIRO
+        return self.giro is None or self.avance(pos) < self.TURN_START
 
     def eje_transversal(self):
         """0 si la pieza se centra en X, 1 si se centra en Y."""
@@ -96,13 +96,13 @@ class CintaTransportadora:
         vel = np.array(vel[:2], dtype=float)
 
         if not self.activa:
-            fuerza = self.KP_VELOCIDAD * (0.0 - vel)
+            fuerza = self.VEL_KP * (0.0 - vel)
             return self._limitar(fuerza)
 
         # alpha va de 0 (tramo recto) a 1 (ya en la esquina)
         alpha = 0.0
         if self.giro is not None:
-            alpha = (self.avance(pos) - self.INICIO_GIRO) / (self.CAMBIO_CINTA - self.INICIO_GIRO)
+            alpha = (self.avance(pos) - self.TURN_START) / (self.CORNER_SWITCH - self.TURN_START)
             alpha = float(np.clip(alpha, 0.0, 1.0))
 
         vel_deseada = self.velocidad * (1.0 - 0.45 * alpha) * self.direccion
@@ -113,11 +113,11 @@ class CintaTransportadora:
         error = self.centro - pos
         error_lateral = error - np.dot(error, self.direccion) * self.direccion
 
-        fuerza = self.KP_VELOCIDAD * (vel_deseada - vel)
-        fuerza = fuerza + (1.0 - alpha) * self.KP_CENTRADO * error_lateral
+        fuerza = self.VEL_KP * (vel_deseada - vel)
+        fuerza = fuerza + (1.0 - alpha) * self.CENTER_KP * error_lateral
         return self._limitar(fuerza)
 
     def _limitar(self, fuerza):
-        fx = float(np.clip(fuerza[0], -self.FUERZA_MAXIMA, self.FUERZA_MAXIMA))
-        fy = float(np.clip(fuerza[1], -self.FUERZA_MAXIMA, self.FUERZA_MAXIMA))
+        fx = float(np.clip(fuerza[0], -self.MAX_FORCE, self.MAX_FORCE))
+        fy = float(np.clip(fuerza[1], -self.MAX_FORCE, self.MAX_FORCE))
         return fx, fy

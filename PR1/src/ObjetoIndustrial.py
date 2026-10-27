@@ -1,15 +1,15 @@
 import mujoco
 
 from src.config import (
-    ALTURA_CINTA, HOLGURA_PIEZA, LIMITE_CAIDA_X, LIMITE_CAIDA_Y, LIMITE_CAIDA_Z,
+    BELT_TOP_Z, OBJECT_CLEARANCE_Z, LIMITE_CAIDA_X, LIMITE_CAIDA_Y, LIMITE_CAIDA_Z,
 )
 
 
 class ObjetoIndustrial:
     """Pieza que circula por las cintas. Clase base de Caja y Cilindro."""
 
-    ALTURA_CINTA = ALTURA_CINTA
-    HOLGURA = HOLGURA_PIEZA
+    BELT_TOP_Z = BELT_TOP_Z
+    OBJECT_CLEARANCE_Z = OBJECT_CLEARANCE_Z
 
     def __init__(self, numero, color, masa, medio_alto):
         self.numero = numero
@@ -29,7 +29,7 @@ class ObjetoIndustrial:
 
     @property
     def altura_reposo(self):
-        return self.ALTURA_CINTA + self.medio_alto + self.HOLGURA
+        return self.BELT_TOP_Z + self.medio_alto + self.OBJECT_CLEARANCE_Z
 
     def generar_xml(self):
         """Cada subclase escribe su propia geometría."""

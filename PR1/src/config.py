@@ -11,7 +11,7 @@ import numpy as np
 # RUTAS
 # =============================================================================
 CARPETA_BASE = Path(__file__).resolve().parent
-CARPETA_CAPTURAS = CARPETA_BASE.parent / "capturas"
+OUTPUT_DIR = CARPETA_BASE.parent / "capturas"
 
 MENAGERIE_REPO = "https://github.com/google-deepmind/mujoco_menagerie.git"
 MUJOCO_MENAGERIE_PATH = 'C:\\Users\\MSI Raider A18\\PycharmProjects\\PR1_POO\\PR1\\mujoco_menagerie'
@@ -128,7 +128,7 @@ ROBOT_HOLD_KD = 5.0
 TCP_POS = [0.0, 0.0, 0.105]
 
 # Configuración geométrica del robot y del pick-and-place
-CONFIG_ROBOT = {
+ROBOT_CONFIG = {
     "base_x": -1.02,
     "base_y": 0.20,
     "base_z": 0.16,
@@ -147,38 +147,36 @@ CONFIG_ROBOT = {
 }
 
 # Isla robotizada (depende de la base del robot)
-ISLAND_X = CONFIG_ROBOT["base_x"]
-ISLAND_Y = CONFIG_ROBOT["base_y"]
-ISLAND_Z = CONFIG_ROBOT["base_z"]
+ISLAND_X = ROBOT_CONFIG["base_x"]
+ISLAND_Y = ROBOT_CONFIG["base_y"]
+ISLAND_Z = ROBOT_CONFIG["base_z"]
 ISLAND_HALF_X = 0.18
 ISLAND_HALF_Y = 0.38
 
 
 # =============================================================================
-# ROBOT PANDA - MODO PRUEBA IK (robot_panda.py)
+# ROBOT PANDA - MODO PRUEBA IK (RobotPanda.py)
 # =============================================================================
-MODO_PRUEBA_IK = True
-IK_OBJETIVO_POSICION = [-1.45, 0.05, 0.62]
-IK_OBJETIVO_RPY = [0.0, 0.0, 20.0]
-IK_MARCO_ORIENTACION = "home"
+ROBOT_IK_TEST_MODE = True
+ROBOT_IK_TARGET_POSITION = [-1.45, 0.05, 0.62]
+ROBOT_IK_TARGET_RPY_DEG = [0.0, 0.0, 20.0]
+ROBOT_IK_ORIENTATION_FRAME = "home"
 
 
 # =============================================================================
-# CINTAS TRANSPORTADORAS (cinta_transportadora.py)
+# CINTAS TRANSPORTADORAS (CintaTransportadora.py)
 # =============================================================================
-CINTA_KP_VELOCIDAD = 7.0
-CINTA_KP_CENTRADO = 12.0
-CINTA_FUERZA_MAXIMA = 12.0
-CINTA_INICIO_GIRO = TURN_START
-CINTA_CAMBIO_CINTA = CORNER_SWITCH
+VEL_KP = 7.0
+CENTER_KP = 12.0
+MAX_FORCE = 12.0
 CINTA_VELOCIDAD_RODILLOS = 5.5
 
-VELOCIDAD_CINTAS = 0.55          # velocidad de las cintas 1-4
+BELT_SPEED = 0.55          # velocidad de las cintas 1-4
 INDICE_CINTA_HORNO = 4           # posición de la Cinta 5 en la lista de cintas
 
 # Definición de cada cinta: número, nombre, dirección, centro, giro en la
 # esquina, actuadores de los rodillos y velocidad de los rodillos.
-# La velocidad de transporte None significa VELOCIDAD_CINTAS.
+# La velocidad de transporte None significa BELT_SPEED.
 CINTAS = [
     dict(numero=1, nombre="CINTA 1 - INFERIOR", velocidad=None,
          direccion=(1, 0), centro=(0, -LANE), giro=(0, 1),
@@ -201,7 +199,7 @@ CIRCUITO_CINTAS = [(1, 2), (2, 3), (3, 4), (4, 1)]
 
 
 # =============================================================================
-# CÁMARAS DE INSPECCIÓN - VISIÓN (camara_inspeccion.py)
+# CÁMARAS DE INSPECCIÓN - VISIÓN (CamaraInspeccion.py)
 # =============================================================================
 CAMARA_UMBRAL_SATURACION = 90
 CAMARA_UMBRAL_BRILLO = 70
@@ -218,7 +216,7 @@ NOMBRES_CAMARAS = ["cam_bottom", "cam_right", "cam_top", "cam_left", "cam_oven"]
 
 
 # =============================================================================
-# HORNO (horno.py)
+# HORNO (Horno.py)
 # =============================================================================
 HORNO_GEOM = "oven_roof"
 HORNO_TEMPERATURA_INICIAL = 20.0
@@ -236,10 +234,8 @@ HORNO_COLOR_CALIENTE = [1.0, 0.1, 0.1, 1.0]  # rojo
 
 
 # =============================================================================
-# PIEZAS (objeto_industrial.py y planta.py)
+# PIEZAS (ObjetoIndustrial.py y PlantaIndustrial.py)
 # =============================================================================
-ALTURA_CINTA = BELT_TOP_Z
-HOLGURA_PIEZA = OBJECT_CLEARANCE_Z
 # Límites a partir de los cuales se considera que una pieza se ha caído
 LIMITE_CAIDA_Z = -0.1
 LIMITE_CAIDA_X = 5.0
@@ -274,12 +270,12 @@ REAPARICION_CAIDA_PASO = 0.25
 
 
 # =============================================================================
-# VENTANA Y CÁMARAS OPENCV (planta.py)
+# VENTANA Y CÁMARAS OPENCV (PlantaIndustrial.py)
 # =============================================================================
-MOSTRAR_VISOR = True
+SHOW_MUJOCO_VIEWER = True
 VENTANA = "Camaras de la planta"
-ANCHO_CAMARA = 360
-ALTO_CAMARA = 260
-FPS_CAMARAS = 20.0
+CAM_W = 360
+CAM_H = 260
+CAM_FPS = 20.0
 ALTO_BARRA_ESTADO = 60
 CAMARA_VISOR = "overview"
