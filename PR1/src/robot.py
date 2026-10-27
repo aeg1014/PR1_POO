@@ -19,49 +19,31 @@ import mujoco
 import numpy as np
 
 
-# -----------------------------------------------------------------------------
-# CONFIGURACIÓN INTERNA DEL PANDA
-# -----------------------------------------------------------------------------
-MENAGERIE_REPO = "https://github.com/google-deepmind/mujoco_menagerie.git"
-PANDA_PREFIX = "panda_"
-PANDA_HOME_Q = np.array([0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785], dtype=float)
-PANDA_OPEN = 255.0
-PANDA_CLOSED = 12.0
 
-ROBOT_IK_DAMPING = 2.0e-3
-ROBOT_MAX_QVEL = 1.15
-ROBOT_POS_GAIN = 3.0
-ROBOT_ORI_GAIN = 1.4
-ROBOT_NULL_GAIN = 0.35
-ROBOT_TARGET_TOL = 0.035
-ROBOT_ORI_TOL_RAD = np.deg2rad(4.0)
-ROBOT_STATE_DWELL = 0.28
-
-# Límites específicos del modo IK cartesiano manual.
-ROBOT_MANUAL_POS_GAIN = 3.2
-ROBOT_MANUAL_ORI_GAIN = 1.8
-ROBOT_MANUAL_MAX_QVEL = 1.25
+from src.config import (
+    MENAGERIE_REPO, RUTAS_MENAGERIE, CARPETA_VENDOR,
+    PANDA_PREFIX, PANDA_HOME_Q, PANDA_OPEN, PANDA_CLOSED, PANDA_FINGER_OPEN_QPOS,
+    ROBOT_IK_DAMPING, ROBOT_MAX_QVEL, ROBOT_POS_GAIN, ROBOT_ORI_GAIN, ROBOT_NULL_GAIN,
+    ROBOT_TARGET_TOL, ROBOT_ORI_TOL_RAD, ROBOT_STATE_DWELL, ROBOT_STATE_TIMEOUT,
+    ROBOT_IK_LOG_PERIODO,
+    ROBOT_MANUAL_POS_GAIN, ROBOT_MANUAL_ORI_GAIN, ROBOT_MANUAL_MAX_QVEL,
+    ROBOT_HOLD_KP, ROBOT_HOLD_KD, TCP_POS, ROBOT_CONFIG,
+)
 
 
-def make_config(lane, branch_y, branch_speed):
-    """Crea la configuración geométrica del robot sin acoplarla al módulo planta."""
-    return {
-        "base_x": -1.02,
-        "base_y": 0.20,
-        "base_z": 0.16,
-        "base_yaw_deg": -90.0,
-        "pick_object_ids": {0},
-        "pick_trigger_y": 0.50,
-        "pick_y": 0.38,
-        "pick_x": -float(lane),
-        "pick_approach_z": 0.58,
-        "pick_z": 0.39,
-        "place_x": -1.70,
-        "place_y": float(branch_y),
-        "place_approach_z": 0.58,
-        "place_z": 0.39,
-        "branch_speed": float(branch_speed),
-    }
+
+def make_config(lane=None, branch_y=None, branch_speed=None):
+    """Devuelve una copia de ROBOT_CONFIG (config.py). Si se pasan lane,
+    branch_y o branch_speed se sobrescriben los valores que dependen de ellos."""
+    cfg = dict(ROBOT_CONFIG)
+    cfg["pick_object_ids"] = set(ROBOT_CONFIG["pick_object_ids"])
+    if lane is not None:
+        cfg["pick_x"] = -float(lane)
+    if branch_y is not None:
+        cfg["place_y"] = float(branch_y)
+    if branch_speed is not None:
+        cfg["branch_speed"] = float(branch_speed)
+    return cfg
 
 
 # -----------------------------------------------------------------------------
@@ -69,19 +51,13 @@ def make_config(lane, branch_y, branch_speed):
 # -----------------------------------------------------------------------------
 def find_franka_model():
     """Localiza panda.xml en rutas habituales o mediante variable de entorno."""
-    root = Path(__file__).resolve().parent
     candidates = []
 
     env_path = os.environ.get("MUJOCO_MENAGERIE_PATH", "").strip()
     if env_path:
         candidates.append(Path(env_path))
 
-    candidates.extend([
-        root / "vendor" / "mujoco_menagerie",
-        root / "mujoco_menagerie",
-        root.parent / "mujoco_menagerie",
-        Path.home() / "mujoco_menagerie",
-    ])
+    candidates.extend(RUTAS_MENAGERIE)
 
     for base in candidates:
         panda = base / "franka_emika_panda" / "panda.xml"
@@ -92,10 +68,10 @@ def find_franka_model():
 
 def download_franka_model():
     """Descarga de forma sparse el modelo oficial si todavía no está local."""
-    root = Path(__file__).resolve().parent
-    vendor_root = root / "vendor"
+    vendor_root = CARPETA_VENDOR
     repo_dir = vendor_root / "mujoco_menagerie"
     panda_xml = repo_dir / "franka_emika_panda" / "panda.xml"
+
 
     if panda_xml.exists():
         return panda_xml.resolve()
@@ -172,7 +148,7 @@ def build_model_with_franka(plant_xml, cfg):
         raise RuntimeError("El modelo Panda no contiene el body 'hand'.")
     hand.add_site(
         name="tcp",
-        pos=[0.0, 0.0, 0.105],
+        pos=TCP_POS,
         size=[0.012, 0.0, 0.0],
         rgba=[0.1, 0.9, 0.2, 0.8],
     )
@@ -292,7 +268,7 @@ def initialize_robot(model, data, robot_ids, robot_state):
         data.qvel[dadr] = 0.0
 
     for qadr in robot_ids["finger_qpos_addrs"]:
-        data.qpos[qadr] = 0.04
+        data.qpos[qadr] = PANDA_FINGER_OPEN_QPOS
 
     data.ctrl[robot_ids["actuator_ids"]] = PANDA_HOME_Q
     data.ctrl[robot_ids["gripper_actuator_id"]] = PANDA_OPEN
@@ -470,7 +446,7 @@ def control_manual_ik(model, data, robot_ids, robot_state, gripper_open=True):
 
     # Log limitado a 2 Hz para verificar convergencia sin saturar terminal.
     now = float(data.time)
-    if robot_state["last_ik_log_t"] < 0.0 or now - robot_state["last_ik_log_t"] >= 0.5:
+    if robot_state["last_ik_log_t"] < 0.0 or now - robot_state["last_ik_log_t"] >= ROBOT_IK_LOG_PERIODO:
         print(
             f"[IK] TCP err_pos={pos_err*1000.0:6.1f} mm | "
             f"err_ori={np.rad2deg(ori_err):5.2f} deg | "
@@ -499,8 +475,8 @@ def robot_hold_force(pos, vel, cfg, max_force):
     """Detiene suavemente la pieza en la estación de recogida."""
     x, y = float(pos[0]), float(pos[1])
     vx, vy = float(vel[0]), float(vel[1])
-    fx = 18.0 * (cfg["pick_x"] - x) - 5.0 * vx
-    fy = 18.0 * (cfg["pick_y"] - y) - 5.0 * vy
+    fx = ROBOT_HOLD_KP * (cfg["pick_x"] - x) - ROBOT_HOLD_KD * vx
+    fy = ROBOT_HOLD_KP * (cfg["pick_y"] - y) - ROBOT_HOLD_KD * vy
     return float(np.clip(fx, -max_force, max_force)), float(np.clip(fy, -max_force, max_force))
 
 
@@ -643,7 +619,7 @@ def update_robot_state_machine(model, data, body_ids, robot_ids, robot_state, se
     elapsed = now - robot_state["state_t0"]
 
     # Recuperación si una fase de IK no converge.
-    if elapsed > 7.0:
+    if elapsed > ROBOT_STATE_TIMEOUT:
         i = robot_state["grasped_obj"] if robot_state["grasped_obj"] >= 0 else robot_state["target_obj"]
         if i >= 0:
             jid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, f"obj{i}_free")

@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a1bf11f4-fae7-46cd-8d13-6e589bbcfcd1" name="Changes" comment="Cambios de nombres de variables y un poco de todo V3" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="107" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="testeo" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;aeg1014&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/aeg1014/PR1_POO.git&quot;,
+    &quot;accountId&quot;: &quot;18379f8a-22dc-4e3a-9a35-4725eade16d4&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.000017183033534" />
+      <entry key="MS500" value="1.1739471391327438" />
+      <entry key="S2" value="3.216157272743894" />
+      <entry key="S5" value="6.58047387988269" />
+      <entry key="S10" value="9.29848904180198" />
+      <entry key="S30" value="12.12810703139411" />
+      <entry key="S60" value="13.0189337960735" />
+      <entry key="M2" value="13.497675824446643" />
+      <entry key="M5" value="13.846003930639807" />
+      <entry key="M10" value="14.719828789358402" />
+      <entry key="M15" value="16.423014189184478" />
+      <entry key="M30" value="23.27293821869432" />
+      <entry key="H1" value="38.52193288962961" />
+      <entry key="H2" value="67.48341267429706" />
+      <entry key="H4" value="104.01746965787532" />
+      <entry key="D1" value="163.66609353202443" />
+      <entry key="W1" value="178.38032551183395" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="3.427072175309897E-259" />
+      <entry key="S30" value="6.998371627635679E-87" />
+      <entry key="S60" value="8.425734689248234E-44" />
+      <entry key="M2" value="3.13791351496831E-22" />
+      <entry key="M5" value="3.3278753531854226E-9" />
+      <entry key="M10" value="7.9982595263454E-5" />
+      <entry key="M15" value="0.002417832229399532" />
+      <entry key="M30" value="0.08681418988004128" />
+      <entry key="H1" value="0.651518015458712" />
+      <entry key="H2" value="2.015378564002647" />
+      <entry key="H4" value="3.6962586654459435" />
+      <entry key="D1" value="6.278552429492399" />
+      <entry key="W1" value="6.891666598161412" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9659529266412102" />
+      <entry key="MS500" value="1.1658421975450761" />
+      <entry key="S2" value="3.2103633497143482" />
+      <entry key="S5" value="6.5749863925491345" />
+      <entry key="S10" value="9.29425403550126" />
+      <entry key="S30" value="12.126136818570568" />
+      <entry key="S60" value="13.017857464376636" />
+      <entry key="M2" value="13.49711285679612" />
+      <entry key="M5" value="13.84575612545852" />
+      <entry key="M10" value="14.7194432903937" />
+      <entry key="M15" value="16.424405304658507" />
+      <entry key="M30" value="23.35717142915543" />
+      <entry key="H1" value="39.1691784309403" />
+      <entry key="H2" value="69.49364255482945" />
+      <entry key="H4" value="107.70927957120549" />
+      <entry key="D1" value="169.9434062147469" />
+      <entry key="W1" value="185.27179768781397" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3Kd0C2kuI0fXK8whPjioc7513sO" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.PlantaIndustrial.executor&quot;: &quot;Run&quot;,
+    &quot;Python.camara_inspeccion.executor&quot;: &quot;Run&quot;,
+    &quot;Python.cinta_transportadora.executor&quot;: &quot;Run&quot;,
+    &quot;Python.planta.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="PlantaIndustrial" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PR1_POO" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/PR1/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="C:\Users\MSI Raider A18\PycharmProjects\PR1_POO\PR1\src\PlantaIndustrial.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.PlantaIndustrial" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-PY-262.10968.92" />
+        <option value="bundled-python-sdk-73a66231627c-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.10968.92" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a1bf11f4-fae7-46cd-8d13-6e589bbcfcd1" name="Changes" comment="" />
+      <created>1791872006303</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1791872006303</updated>
+      <workItem from="1791872007307" duration="985000" />
+      <workItem from="1791878876585" duration="6918000" />
+      <workItem from="1792476327177" duration="1008000" />
+      <workItem from="1792483394802" duration="84000" />
+      <workItem from="1792484710270" duration="5823000" />
+      <workItem from="1792495257362" duration="874000" />
+      <workItem from="1793091740462" duration="5655000" />
+      <workItem from="1793100711253" duration="1555000" />
+      <workItem from="1793102465515" duration="2050000" />
+      <workItem from="1793104528365" duration="103000" />
+    </task>
+    <task id="LOCAL-00001" summary="creacion entorno">
+      <option name="closed" value="true" />
+      <created>1791872264666</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1791872264666</updated>
+    </task>
+    <task id="LOCAL-00002" summary="primeros cambios">
+      <option name="closed" value="true" />
+      <created>1791872843514</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1791872843514</updated>
+    </task>
+    <task id="LOCAL-00003" summary="siguiendo con la practica">
+      <option name="closed" value="true" />
+      <created>1791885149718</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1791885149719</updated>
+    </task>
+    <task id="LOCAL-00004" summary="siguiendo con la practica">
+      <option name="closed" value="true" />
+      <created>1792489606039</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1792489606040</updated>
+    </task>
+    <task id="LOCAL-00005" summary="siguiendo con la practica">
+      <option name="closed" value="true" />
+      <created>1792490443516</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1792490443516</updated>
+    </task>
+    <task id="LOCAL-00006" summary="siguiendo con la practica">
+      <option name="closed" value="true" />
+      <created>1793091952228</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1793091952228</updated>
+    </task>
+    <task id="LOCAL-00007" summary="practica casi terminada">
+      <option name="closed" value="true" />
+      <created>1793096333064</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1793096333064</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Código Terminado y funcionando">
+      <option name="closed" value="true" />
+      <created>1793097337094</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1793097337094</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Código Terminado y funcionando v2">
+      <option name="closed" value="true" />
+      <created>1793102259283</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1793102259283</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Cambios de nombres de variables y un poco de todo V3">
+      <option name="closed" value="true" />
+      <created>1793104339906</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1793104339906</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="creacion entorno" />
+    <MESSAGE value="primeros cambios" />
+    <MESSAGE value="siguiendo con la practica" />
+    <MESSAGE value="practica casi terminada" />
+    <MESSAGE value="Código Terminado y funcionando" />
+    <MESSAGE value="Código Terminado y funcionando v2" />
+    <MESSAGE value="Cambios de nombres de variables y un poco de todo V3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cambios de nombres de variables y un poco de todo V3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/PR1_POO$cinta_transportadora.coverage" NAME="cinta_transportadora Coverage Results" MODIFIED="1791885749394" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/PR1/src" />
+    <SUITE FILE_PATH="coverage/PR1_POO$planta.coverage" NAME="PlantaIndustrial Coverage Results" MODIFIED="1793104122086" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/PR1/src" />
+    <SUITE FILE_PATH="coverage/PR1_POO$camara_inspeccion.coverage" NAME="camara_inspeccion Coverage Results" MODIFIED="1792486185788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/PR1/src" />
+  </component>
+</project>
