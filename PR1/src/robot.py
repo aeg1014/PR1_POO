@@ -23,6 +23,7 @@ import numpy as np
 # CONFIGURACIÓN INTERNA DEL PANDA
 # -----------------------------------------------------------------------------
 MENAGERIE_REPO = "https://github.com/google-deepmind/mujoco_menagerie.git"
+MUJOCO_MENAGERIE_PATH = 'C:\\Users\\MSI Raider A18\\PycharmProjects\\PR1_POO\\PR1\\mujoco_menagerie'
 PANDA_PREFIX = "panda_"
 PANDA_HOME_Q = np.array([0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785], dtype=float)
 PANDA_OPEN = 255.0
@@ -96,6 +97,7 @@ def download_franka_model():
     vendor_root = root / "vendor"
     repo_dir = vendor_root / "mujoco_menagerie"
     panda_xml = repo_dir / "franka_emika_panda" / "panda.xml"
+
 
     if panda_xml.exists():
         return panda_xml.resolve()
