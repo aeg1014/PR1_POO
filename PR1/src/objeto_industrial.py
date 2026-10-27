@@ -1,112 +1,111 @@
 import mujoco
-import numpy as np
-from src.config import *
+
 
 class ObjetoIndustrial:
+    """Pieza que circula por las cintas. Clase base de Caja y Cilindro."""
 
-    def __init__(self, id, forma, segmento, z_reposo):
-        self.id = id
-        self.nombre = f"obj{id}"
-        self.forma = forma
-        self.segmento = segmento
-        self.z_reposo = z_reposo
+    ALTURA_CINTA = 0.18
+    HOLGURA = 0.01
+
+    def __init__(self, numero, color, masa, medio_alto):
+        self.numero = numero
+        self.nombre = f"obj{numero}"
+        self.color = color
+        self.masa = masa
+        self.medio_alto = medio_alto
+        self.forma = "desconocida"
+        self.cinta = None
+
         self.body_id = -1
-        self.qpos_adr = -1
-        self.dof_adr = -1
-        self.veces_horno = 0
+        self._qpos = -1
+        self._dof = -1
 
-    def get_ids(self, model):
+    def __str__(self):
+        return f"{self.nombre} ({self.forma})"
+
+    @property
+    def altura_reposo(self):
+        return self.ALTURA_CINTA + self.medio_alto + self.HOLGURA
+
+    def generar_xml(self):
+        """Cada subclase escribe su propia geometría."""
+        raise NotImplementedError
+
+    def _xml_cuerpo(self, geom):
+        r, g, b = self.color
+        return (f'        <body name="{self.nombre}" pos="0 0 {self.altura_reposo}">\n'
+                f'            <freejoint name="{self.nombre}_free"/>\n'
+                f'            <geom name="{self.nombre}_geom" {geom} mass="{self.masa}" '
+                f'rgba="{r} {g} {b} 1"/>\n'
+                f'        </body>')
+
+    def conectar(self, model):
         self.body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, self.nombre)
         jid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, f"{self.nombre}_free")
-        self.qpos_adr = model.jnt_qposadr[jid]
-        self.dof_adr = model.jnt_dofadr[jid]
+        self._qpos = model.jnt_qposadr[jid]
+        self._dof = model.jnt_dofadr[jid]
 
-    def obtener_posicion(self, data):
+    def posicion(self, data):
         return data.xpos[self.body_id]
 
-    def obtener_velocidad(self, data):
-        return data.qvel[self.dof_adr:self.dof_adr + 3]
+    def velocidad(self, data):
+        return data.qvel[self._dof:self._dof + 3]
 
-    def colocar(self, data, x, y, segmento):
-        q = self.qpos_adr
-        data.qpos[q:q + 3] = [x, y, self.z_reposo]
-        data.qpos[q + 3:q + 7] = [1.0, 0.0, 0.0, 0.0]
-        data.qvel[self.dof_adr:self.dof_adr + 6] = 0.0
-        self.segmento = segmento
+    def colocar(self, data, x, y, cinta):
+        """Pone la pieza quieta en (x, y) encima de la cinta indicada."""
+        data.qpos[self._qpos:self._qpos + 3] = [x, y, self.altura_reposo]
+        data.qpos[self._qpos + 3:self._qpos + 7] = [1.0, 0.0, 0.0, 0.0]
+        data.qvel[self._dof:self._dof + 6] = 0.0
+        self.cinta = cinta
 
-    def lock_object_rotations(self, model, data):
+    def aplicar_fuerza(self, data, fx, fy):
+        data.xfrc_applied[self.body_id, 0] = fx
+        data.xfrc_applied[self.body_id, 1] = fy
 
-        if not LOCK_OBJECT_ROTATION:
-            return
+    def actualizar_cinta(self, data):
+        """Si la pieza llega al final de su cinta pasa a la siguiente."""
+        if self.cinta.ha_terminado(self.posicion(data)):
+            self.cinta = self.cinta.siguiente
 
-        for i in range(5):
-            jid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, f"obj{i}_free")
-            qadr = model.jnt_qposadr[jid]
-            dadr = model.jnt_dofadr[jid]
-            data.qpos[qadr + 3:qadr + 7] = [1.0, 0.0, 0.0, 0.0]
-            data.qvel[dadr + 3:dadr + 6] = 0.0
+    def se_ha_caido(self, data):
+        x, y, z = self.posicion(data)
+        return z < -0.1 or abs(x) > 5.0 or abs(y) > 2.4
 
-    def update_segment(self, pos, segmento):
-        """Máquina de estados del circuito. La Cinta 5 solo la activa el robot."""
-        x, y = float(pos[0]), float(pos[1])
-
-        if segmento == 0 and x >= CORNER_SWITCH:
-            return 1
-        if segmento == 1 and y >= CORNER_SWITCH:
-            return 2
-        if segmento == 2 and x <= -CORNER_SWITCH:
-            return 3
-        if segmento == 3 and y <= -CORNER_SWITCH:
-            return 0
-        return segmento
-
-    def send_object_back_to_line(self, model, data, i, dadr, segments):
-        """Al entrar en el horno, reaparece en Cinta 1 para mantener flujo continuo."""
-        jid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, f"obj{i}_free")
-        qadr = model.jnt_qposadr[jid]
-        x0 = -1.05 + 0.18 * (i % 3)
-        data.qpos[qadr:qadr+3] = [x0, -LANE, OBJECT_REST_Z[i]]
-        data.qpos[qadr+3:qadr+7] = [1.0, 0.0, 0.0, 0.0]
-        data.qvel[dadr:dadr+6] = 0.0
-        segments[i] = 0
+    def estabilizar(self, data):
+        """Las piezas se trasladan pero no giran."""
+        data.qpos[self._qpos + 3:self._qpos + 7] = [1.0, 0.0, 0.0, 0.0]
+        data.qvel[self._dof + 3:self._dof + 6] = 0.0
 
 
 class Caja(ObjetoIndustrial):
 
-    def __init__(self, id, segmento, z_reposo):
-        super().__init__(id, "caja", segmento, z_reposo)
+    def __init__(self, numero, color, masa, medio_x, medio_y, medio_z):
+        super().__init__(numero, color, masa, medio_z)
+        self.medidas = (medio_x, medio_y, medio_z)
+        if medio_x == medio_y:
+            self.forma = "cubo"
+        else:
+            self.forma = "caja"
 
+    def generar_xml(self):
+        x, y, z = self.medidas
+        return self._xml_cuerpo(f'type="box" size="{x} {y} {z}"')
 
 
 class Cilindro(ObjetoIndustrial):
 
-    def __init__(self, id, segmento, z_reposo):
-        super().__init__(id, "cilindro", segmento, z_reposo)
+    def __init__(self, numero, color, masa, radio, medio_alto):
+        super().__init__(numero, color, masa, medio_alto)
+        self.radio = radio
+        self.forma = "cilindro"
 
-    def centrar_en_cinta(self, data, model, segments):
-        if not LOCK_CYLINDERS_TO_CENTERLINE:
-            return
+    def generar_xml(self):
+        return self._xml_cuerpo(f'type="cylinder" size="{self.radio} {self.medio_alto}"')
 
-        for i in CYLINDER_OBJECT_IDS:
-            jid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, f"obj{i}_free")
-            qadr = model.jnt_qposadr[jid]
-            dadr = model.jnt_dofadr[jid]
-            x = float(data.qpos[qadr])
-            y = float(data.qpos[qadr + 1])
-            segmento = segments[i]
-
-            if segmento == 0 and x < TURN_START:
-                data.qpos[qadr + 1] = -LANE
-                data.qvel[dadr + 1] = 0.0
-            elif segmento == 1 and y < TURN_START:
-                data.qpos[qadr] = LANE
-                data.qvel[dadr] = 0.0
-            elif segmento == 2 and x > -TURN_START:
-                data.qpos[qadr + 1] = LANE
-                data.qvel[dadr + 1] = 0.0
-            elif segmento == 3 and y > -TURN_START:
-                data.qpos[qadr] = -LANE
-                data.qvel[dadr] = 0.0
-            elif segmento == 4:
-                data.qpos[qadr + 1] = BRANCH_Y
-                data.qvel[dadr + 1] = 0.0
+    def estabilizar(self, data):
+        super().estabilizar(data)
+        # en los tramos rectos el cilindro va justo por el centro de la banda
+        if self.cinta.en_tramo_recto(self.posicion(data)):
+            eje = self.cinta.eje_transversal()
+            data.qpos[self._qpos + eje] = self.cinta.centro[eje]
+            data.qvel[self._dof + eje] = 0.0

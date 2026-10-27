@@ -1,20 +1,47 @@
+import mujoco
 import numpy as np
-
-from src.config import *
 
 
 class CintaTransportadora:
+    """Una cinta de la planta. Sabe si está en marcha y cómo mover las piezas."""
 
-    def __init__(self, id, nombre, velocidad, direccion, actuadores, sentido_rodillo=1.0):
-        self.id = id
+    # Atributos de clase: son iguales para todas las cintas
+    KP_VELOCIDAD = 7.0
+    KP_CENTRADO = 12.0
+    FUERZA_MAXIMA = 12.0
+    INICIO_GIRO = 1.08
+    CAMBIO_CINTA = 1.27
+
+    def __init__(self, numero, nombre, velocidad, direccion, centro, giro=None,
+                 rodillos=(), velocidad_rodillos=5.5):
+        self.numero = numero
         self.nombre = nombre
         self.velocidad = velocidad
         self.direccion = np.array(direccion, dtype=float)
+        self.centro = np.array(centro, dtype=float)
+        self.giro = None if giro is None else np.array(giro, dtype=float)
+        self.siguiente = None
         self.activa = True
-        self.actuadores = actuadores
-        self.sentido_rodillo = sentido_rodillo
-        self.vel_rodillo = 5.5
 
+        self._nombres_rodillos = rodillos
+        self._velocidad_rodillos = velocidad_rodillos
+        self._ids_rodillos = []
+
+    @property
+    def velocidad(self):
+        return self._velocidad
+
+    @velocidad.setter
+    def velocidad(self, valor):
+        if valor < 0:
+            raise ValueError("La velocidad de la cinta no puede ser negativa")
+        self._velocidad = valor
+
+    def __str__(self):
+        estado = "ON" if self.activa else "OFF"
+        return f"C{self.numero}:{estado}"
+
+    # --- marcha / paro ---
     def arrancar(self):
         self.activa = True
 
@@ -28,104 +55,64 @@ class CintaTransportadora:
     def esta_activa(self):
         return self.activa
 
-    def _limitar(self, fx, fy):
-        return (float(np.clip(fx, -MAX_FORCE, MAX_FORCE)),
-                float(np.clip(fy, -MAX_FORCE, MAX_FORCE)))
+    # --- conexión con MuJoCo ---
+    def conectar(self, model):
+        self._ids_rodillos = []
+        for nombre in self._nombres_rodillos:
+            aid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_ACTUATOR, nombre)
+            if aid < 0:
+                raise RuntimeError(f"No se encontró el actuador '{nombre}'")
+            self._ids_rodillos.append(aid)
 
-    def cinta_activa(self):
-        """Devuelve la bandera de marcha de la cinta asociada al segmento 0..4."""
-        if self.id == 0:
-            return BANDERA_CINTA_1
-        if self.id == 1:
-            return BANDERA_CINTA_2
-        if self.id == 2:
-            return BANDERA_CINTA_3
-        if self.id == 3:
-            return BANDERA_CINTA_4
-        if self.id == 4:
-            return BANDERA_CINTA_5
-        return False
+    def actualizar_rodillos(self, data):
+        valor = self._velocidad_rodillos if self.activa else 0.0
+        for aid in self._ids_rodillos:
+            data.ctrl[aid] = valor
 
-    def conmutar_cinta(self,numero):
-        """Conmuta en tiempo de ejecución una bandera de marcha/parada."""
-        global BANDERA_CINTA_1, BANDERA_CINTA_2, BANDERA_CINTA_3
-        global BANDERA_CINTA_4, BANDERA_CINTA_5
+    # --- transporte de piezas ---
+    def avance(self, pos):
+        """Distancia recorrida a lo largo de la cinta (proyección sobre la dirección)."""
+        return float(np.dot(pos[:2], self.direccion))
 
-        if numero == 1:
-            BANDERA_CINTA_1 = not BANDERA_CINTA_1
-            return BANDERA_CINTA_1
-        if numero == 2:
-            BANDERA_CINTA_2 = not BANDERA_CINTA_2
-            return BANDERA_CINTA_2
-        if numero == 3:
-            BANDERA_CINTA_3 = not BANDERA_CINTA_3
-            return BANDERA_CINTA_3
-        if numero == 4:
-            BANDERA_CINTA_4 = not BANDERA_CINTA_4
-            return BANDERA_CINTA_4
-        if numero == 5:
-            BANDERA_CINTA_5 = not BANDERA_CINTA_5
-            return BANDERA_CINTA_5
-        raise ValueError(f"Número de cinta inválido: {numero}")
+    def ha_terminado(self, pos):
+        return self.siguiente is not None and self.avance(pos) >= self.CAMBIO_CINTA
 
-    def fuerza_transporte(self, pos, vel):
-        x, y = float(pos[0]), float(pos[1])
-        vx, vy = float(vel[0]), float(vel[1])
+    def en_tramo_recto(self, pos):
+        return self.giro is None or self.avance(pos) < self.INICIO_GIRO
 
-        # cinta parada -> frenar la pieza
-        if not self.activa:
-            return self._limitar(VEL_KP * (0.0 - vx), VEL_KP * (0.0 - vy))
-
-        fx = 0.0
-        fy = 0.0
-
-        if self.id == 0:
-            alpha = np.clip((x - TURN_START) / max(CORNER_SWITCH - TURN_START, 1e-6), 0.0, 1.0)
-            desired_vx = self.velocidad * (1.0 - 0.45 * alpha)
-            desired_vy = self.velocidad * (0.85 * alpha)
-            fx = VEL_KP * (desired_vx - vx)
-            fy = VEL_KP * (desired_vy - vy) + (1.0 - alpha) * CENTER_KP * (-LANE - y)
-
-        elif self.id == 1:  # derecha: +Y -> -X
-            alpha = np.clip((y - TURN_START) / max(CORNER_SWITCH - TURN_START, 1e-6), 0.0, 1.0)
-            desired_vx = -BELT_SPEED * (0.85 * alpha)
-            desired_vy = BELT_SPEED * (1.0 - 0.45 * alpha)
-            fx = VEL_KP * (desired_vx - vx) + (1.0 - alpha) * CENTER_KP * (LANE - x)
-            fy = VEL_KP * (desired_vy - vy)
-
-        elif self.id == 2:  # superior: -X -> -Y
-            alpha = np.clip((-x - TURN_START) / max(CORNER_SWITCH - TURN_START, 1e-6), 0.0, 1.0)
-            desired_vx = -BELT_SPEED * (1.0 - 0.45 * alpha)
-            desired_vy = -BELT_SPEED * (0.85 * alpha)
-            fx = VEL_KP * (desired_vx - vx)
-            fy = VEL_KP * (desired_vy - vy) + (1.0 - alpha) * CENTER_KP * (LANE - y)
-
-        elif self.id == 3:  # izquierda: -Y -> +X en esquina inferior
-            alpha = np.clip((-y - TURN_START) / max(CORNER_SWITCH - TURN_START, 1e-6), 0.0, 1.0)
-            desired_vx = BELT_SPEED * (0.85 * alpha)
-            desired_vy = -BELT_SPEED * (1.0 - 0.45 * alpha)
-            fx = VEL_KP * (desired_vx - vx) + (1.0 - alpha) * CENTER_KP * (-LANE - x)
-            fy = VEL_KP * (desired_vy - vy)
-
-        elif self.id == 4:
-            fx = VEL_KP * (-self.velocidad - vx)
-            fy = VEL_KP * (0.0 - vy) + CENTER_KP * (BRANCH_Y - y)
-
-        return self._limitar(fx, fy)
-
-    def actualizar_rodillos(self, model, data, pos):
-        """Máquina de estados del circuito. La Cinta 5 solo la activa el robot."""
-        x, y = float(pos[0]), float(pos[1])
-
-        if self.id == 0 and x >= CORNER_SWITCH:
+    def eje_transversal(self):
+        """0 si la pieza se centra en X, 1 si se centra en Y."""
+        if abs(self.direccion[0]) > 0.5:
             return 1
-        if self.id == 1 and y >= CORNER_SWITCH:
-            return 2
-        if self.id == 2 and x <= -CORNER_SWITCH:
-            return 3
-        if self.id == 3 and y <= -CORNER_SWITCH:
-            return 0
-        return self.id
+        return 0
 
+    def calcular_fuerza(self, pos, vel):
+        pos = np.array(pos[:2], dtype=float)
+        vel = np.array(vel[:2], dtype=float)
 
+        if not self.activa:
+            fuerza = self.KP_VELOCIDAD * (0.0 - vel)
+            return self._limitar(fuerza)
 
+        # alpha va de 0 (tramo recto) a 1 (ya en la esquina)
+        alpha = 0.0
+        if self.giro is not None:
+            alpha = (self.avance(pos) - self.INICIO_GIRO) / (self.CAMBIO_CINTA - self.INICIO_GIRO)
+            alpha = float(np.clip(alpha, 0.0, 1.0))
+
+        vel_deseada = self.velocidad * (1.0 - 0.45 * alpha) * self.direccion
+        if self.giro is not None:
+            vel_deseada = vel_deseada + self.velocidad * 0.85 * alpha * self.giro
+
+        # error lateral: lo que se separa la pieza de la línea central
+        error = self.centro - pos
+        error_lateral = error - np.dot(error, self.direccion) * self.direccion
+
+        fuerza = self.KP_VELOCIDAD * (vel_deseada - vel)
+        fuerza = fuerza + (1.0 - alpha) * self.KP_CENTRADO * error_lateral
+        return self._limitar(fuerza)
+
+    def _limitar(self, fuerza):
+        fx = float(np.clip(fuerza[0], -self.FUERZA_MAXIMA, self.FUERZA_MAXIMA))
+        fy = float(np.clip(fuerza[1], -self.FUERZA_MAXIMA, self.FUERZA_MAXIMA))
+        return fx, fy
