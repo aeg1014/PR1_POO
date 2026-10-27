@@ -11,7 +11,6 @@ import numpy as np
 
 from src import robot
 
-
 # Geometría de las cintas
 BELT_HALF_LENGTH = 1.45
 BELT_HALF_WIDTH = 0.28

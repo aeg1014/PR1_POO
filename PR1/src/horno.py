@@ -1,6 +1,4 @@
 import mujoco
-
-
 class Horno:
     """Horno del final de la Cinta 5. Cuenta piezas y controla su temperatura."""
 

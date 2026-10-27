@@ -2,6 +2,7 @@ import mujoco
 import numpy as np
 
 
+
 class CintaTransportadora:
     """Una cinta de la planta. Sabe si está en marcha y cómo mover las piezas."""
 

@@ -14,6 +14,7 @@ from src.objeto_industrial import Caja, Cilindro
 from src.robot_panda import RobotPanda
 
 
+
 class PlantaIndustrial:
     """Coordina todos los elementos de la planta y contiene el bucle principal."""
 

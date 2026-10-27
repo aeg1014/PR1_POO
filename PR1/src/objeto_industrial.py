@@ -1,6 +1,7 @@
 import mujoco
 
 
+
 class ObjetoIndustrial:
     """Pieza que circula por las cintas. Clase base de Caja y Cilindro."""
 
