@@ -1,13 +1,22 @@
 import mujoco
+
+from src.config import (
+    HORNO_TEMPERATURA_INICIAL, HORNO_TEMPERATURA_MINIMA, HORNO_TEMPERATURA_MAXIMA,
+    HORNO_TEMPERATURA_ALTA, HORNO_VELOCIDAD_CALENTAMIENTO, HORNO_VELOCIDAD_ENFRIAMIENTO,
+    HORNO_ENFRIAMIENTO_POR_PIEZA, HORNO_COLOR_FRIO, HORNO_COLOR_TEMPLADO, HORNO_COLOR_CALIENTE,
+)
+
+
 class Horno:
     """Horno del final de la Cinta 5. Cuenta piezas y controla su temperatura."""
 
-    AZUL = [0.1, 0.3, 1.0, 1.0]
-    NARANJA = [1.0, 0.6, 0.1, 1.0]
-    ROJO = [1.0, 0.1, 0.1, 1.0]
+    AZUL = HORNO_COLOR_FRIO
+    NARANJA = HORNO_COLOR_TEMPLADO
+    ROJO = HORNO_COLOR_CALIENTE
 
-    def __init__(self, nombre_geom, entrada_x, temperatura_inicial=20.0,
-                 temperatura_minima=60.0, temperatura_maxima=220.0):
+    def __init__(self, nombre_geom, entrada_x, temperatura_inicial=HORNO_TEMPERATURA_INICIAL,
+                 temperatura_minima=HORNO_TEMPERATURA_MINIMA,
+                 temperatura_maxima=HORNO_TEMPERATURA_MAXIMA):
         self.nombre_geom = nombre_geom
         self.geom_id = -1
         self.entrada_x = entrada_x
@@ -16,10 +25,10 @@ class Horno:
         self.temperatura = temperatura_inicial
         self.temperatura_minima = temperatura_minima
         self.temperatura_maxima = temperatura_maxima
-        self.temperatura_alta = 150.0
-        self.velocidad_calentamiento = 5.0   # grados por segundo
-        self.velocidad_enfriamiento = 4.0
-        self.enfriamiento_por_pieza = 5.0
+        self.temperatura_alta = HORNO_TEMPERATURA_ALTA
+        self.velocidad_calentamiento = HORNO_VELOCIDAD_CALENTAMIENTO   # grados por segundo
+        self.velocidad_enfriamiento = HORNO_VELOCIDAD_ENFRIAMIENTO
+        self.enfriamiento_por_pieza = HORNO_ENFRIAMIENTO_POR_PIEZA
 
         self.encendido = True
         self.numero_piezas = 0

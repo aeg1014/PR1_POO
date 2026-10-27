@@ -1,5 +1,4 @@
 import time
-from pathlib import Path
 
 import cv2
 import mujoco
@@ -12,27 +11,37 @@ from src.cinta_transportadora import CintaTransportadora
 from src.horno import Horno
 from src.objeto_industrial import Caja, Cilindro
 from src.robot_panda import RobotPanda
-
+from src.config import (
+    CONFIG_ROBOT, LANE, OVEN_ENTRY_X,
+    CINTAS, CIRCUITO_CINTAS, VELOCIDAD_CINTAS, INDICE_CINTA_HORNO,
+    NOMBRES_CAMARAS, PIEZAS, POSICIONES_INICIALES,
+    HORNO_GEOM, HORNO_PASO_TECLADO,
+    REAPARICION_HORNO_X0, REAPARICION_HORNO_PASO,
+    REAPARICION_CAIDA_X0, REAPARICION_CAIDA_PASO,
+    MOSTRAR_VISOR, MODO_PRUEBA_IK,
+    VENTANA, ANCHO_CAMARA, ALTO_CAMARA, FPS_CAMARAS, ALTO_BARRA_ESTADO,
+    CAMARA_VISOR, CARPETA_CAPTURAS,
+)
 
 
 class PlantaIndustrial:
     """Coordina todos los elementos de la planta y contiene el bucle principal."""
 
-    VENTANA = "Camaras de la planta"
-    ANCHO_CAMARA = 360
-    ALTO_CAMARA = 260
-    FPS_CAMARAS = 20.0
-    VELOCIDAD_CINTAS = 0.55
+    VENTANA = VENTANA
+    ANCHO_CAMARA = ANCHO_CAMARA
+    ALTO_CAMARA = ALTO_CAMARA
+    FPS_CAMARAS = FPS_CAMARAS
+    VELOCIDAD_CINTAS = VELOCIDAD_CINTAS
 
-    def __init__(self, mostrar_visor=True, modo_prueba_ik=True):
+    def __init__(self, mostrar_visor=MOSTRAR_VISOR, modo_prueba_ik=MODO_PRUEBA_IK):
         self.mostrar_visor = mostrar_visor
 
         self.cintas = self._crear_cintas()
-        self.cinta_horno = self.cintas[4]
+        self.cinta_horno = self.cintas[INDICE_CINTA_HORNO]
         self.camaras = self._crear_camaras()
         self.objetos = self._crear_objetos()
-        self.horno = Horno("oven_roof", escena.OVEN_ENTRY_X)
-        self.robot = RobotPanda(escena.CONFIG_ROBOT, modo_prueba_ik)
+        self.horno = Horno(HORNO_GEOM, OVEN_ENTRY_X)
+        self.robot = RobotPanda(CONFIG_ROBOT, modo_prueba_ik)
 
         self.model = None
         self.data = None
@@ -43,47 +52,40 @@ class PlantaIndustrial:
         self.en_marcha = False
         self.mosaico = None
         self._ultimo_render = -1.0
-        self.carpeta_capturas = Path(__file__).resolve().parent.parent / "capturas"
+        self.carpeta_capturas = CARPETA_CAPTURAS
 
     # ------------------------------------------------------------------
     # Creación de los elementos
     # ------------------------------------------------------------------
     def _crear_cintas(self):
-        lane = escena.LANE
-        v = self.VELOCIDAD_CINTAS
-        cinta1 = CintaTransportadora(1, "CINTA 1 - INFERIOR", v, (1, 0), (0, -lane), giro=(0, 1),
-                                     rodillos=("belt_act_b1", "belt_act_b2"), velocidad_rodillos=5.5)
-        cinta2 = CintaTransportadora(2, "CINTA 2 - DERECHA", v, (0, 1), (lane, 0), giro=(-1, 0),
-                                     rodillos=("belt_act_r1", "belt_act_r2"), velocidad_rodillos=-5.5)
-        cinta3 = CintaTransportadora(3, "CINTA 3 - SUPERIOR", v, (-1, 0), (0, lane), giro=(0, -1),
-                                     rodillos=("belt_act_t1", "belt_act_t2"), velocidad_rodillos=-5.5)
-        cinta4 = CintaTransportadora(4, "CINTA 4 - IZQUIERDA", v, (0, -1), (-lane, 0), giro=(1, 0),
-                                     rodillos=("belt_act_l1", "belt_act_l2"), velocidad_rodillos=5.5)
-        cinta5 = CintaTransportadora(5, "CINTA 5 - HORNO", escena.BRANCH_SPEED, (-1, 0),
-                                     (0, escena.BRANCH_Y),
-                                     rodillos=("belt_act_o1", "belt_act_o2"), velocidad_rodillos=-5.5)
+        """Crea las cintas a partir de la tabla CINTAS de config.py."""
+        cintas = []
+        for datos in CINTAS:
+            datos = dict(datos)
+            if datos["velocidad"] is None:
+                datos["velocidad"] = self.VELOCIDAD_CINTAS
+            cintas.append(CintaTransportadora(**datos))
         # circuito cerrado: 1 -> 2 -> 3 -> 4 -> 1. La cinta 5 no tiene siguiente.
-        cinta1.siguiente = cinta2
-        cinta2.siguiente = cinta3
-        cinta3.siguiente = cinta4
-        cinta4.siguiente = cinta1
-        return [cinta1, cinta2, cinta3, cinta4, cinta5]
+        for origen, destino in CIRCUITO_CINTAS:
+            cintas[origen - 1].siguiente = cintas[destino - 1]
+        return cintas
 
     def _crear_camaras(self):
-        nombres = ["cam_bottom", "cam_right", "cam_top", "cam_left", "cam_oven"]
         camaras = []
-        for nombre, cinta in zip(nombres, self.cintas):
+        for nombre, cinta in zip(NOMBRES_CAMARAS, self.cintas):
             camaras.append(CamaraInspeccion(nombre, cinta.nombre, cinta))
         return camaras
 
     def _crear_objetos(self):
-        return [
-            Caja(0, (0.90, 0.16, 0.12), 0.18, 0.085, 0.085, 0.085),
-            Cilindro(1, (0.12, 0.45, 0.95), 0.08, 0.075, 0.045),
-            Caja(2, (0.95, 0.76, 0.10), 0.15, 0.10, 0.07, 0.07),
-            Cilindro(3, (0.18, 0.75, 0.30), 0.085, 0.085, 0.0375),
-            Caja(4, (0.50, 0.12, 0.80), 0.14, 0.07, 0.11, 0.065),
-        ]
+        objetos = []
+        for numero, (tipo, color, masa, medidas) in enumerate(PIEZAS):
+            if tipo == "caja":
+                objetos.append(Caja(numero, color, masa, *medidas))
+            elif tipo == "cilindro":
+                objetos.append(Cilindro(numero, color, masa, *medidas))
+            else:
+                raise ValueError(f"Tipo de pieza desconocido: {tipo}")
+        return objetos
 
     # ------------------------------------------------------------------
     # Inicialización
@@ -91,7 +93,7 @@ class PlantaIndustrial:
     def inicializar(self):
         xml_objetos = "\n".join(obj.generar_xml() for obj in self.objetos)
         xml = escena.construir_mjcf(xml_objetos)
-        self.model = robot.build_model_with_franka(xml, escena.CONFIG_ROBOT)
+        self.model = robot.build_model_with_franka(xml, CONFIG_ROBOT)
         self.data = mujoco.MjData(self.model)
 
         for cinta in self.cintas:
@@ -105,20 +107,17 @@ class PlantaIndustrial:
 
         self.renderer = mujoco.Renderer(self.model, height=self.ALTO_CAMARA, width=self.ANCHO_CAMARA)
         cv2.namedWindow(self.VENTANA, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(self.VENTANA, self.ANCHO_CAMARA * 3, self.ALTO_CAMARA * 2 + 60)
+        cv2.resizeWindow(self.VENTANA, self.ANCHO_CAMARA * 3, self.ALTO_CAMARA * 2 + ALTO_BARRA_ESTADO)
 
         if self.mostrar_visor:
             self.visor = mujoco.viewer.launch_passive(self.model, self.data)
             self.visor.cam.type = mujoco.mjtCamera.mjCAMERA_FIXED
-            self.visor.cam.fixedcamid = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_CAMERA, "overview")
+            self.visor.cam.fixedcamid = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_CAMERA, CAMARA_VISOR)
 
         self.en_marcha = True
 
     def reiniciar(self):
-        lane = escena.LANE
-        posiciones = [(-lane, 0.95, 4), (lane, -0.72, 2), (0.58, lane, 3),
-                      (-0.62, -lane, 1), (-0.45, lane, 3)]
-        for objeto, (x, y, numero_cinta) in zip(self.objetos, posiciones):
+        for objeto, (x, y, numero_cinta) in zip(self.objetos, POSICIONES_INICIALES):
             objeto.colocar(self.data, x, y, self.cintas[numero_cinta - 1])
         self.data.xfrc_applied[:] = 0.0
         mujoco.mj_forward(self.model, self.data)
@@ -173,18 +172,18 @@ class PlantaIndustrial:
             if objeto.cinta is self.cinta_horno and self.horno.detectar_entrada(pos):
                 self.horno.registrar_pieza()
                 print(f"[Horno] entra {objeto} -> total {self.horno.numero_piezas}")
-                x = -1.05 + 0.18 * (objeto.numero % 3)
-                objeto.colocar(self.data, x, -escena.LANE, self.cintas[0])
+                x = REAPARICION_HORNO_X0 + REAPARICION_HORNO_PASO * (objeto.numero % 3)
+                objeto.colocar(self.data, x, -LANE, self.cintas[0])
             elif objeto.se_ha_caido(self.data):
-                x = -0.8 + 0.25 * objeto.numero
-                objeto.colocar(self.data, x, -escena.LANE, self.cintas[0])
+                x = REAPARICION_CAIDA_X0 + REAPARICION_CAIDA_PASO * objeto.numero
+                objeto.colocar(self.data, x, -LANE, self.cintas[0])
 
     def enviar_pieza_al_horno(self):
         """Atajo para la demostración: hace lo mismo que la descarga del robot,
         pone una pieza de la Cinta 4 al principio de la Cinta 5."""
         for objeto in self.objetos:
             if objeto.cinta is self.cintas[3] and objeto.numero != self.robot.pieza_agarrada():
-                cfg = escena.CONFIG_ROBOT
+                cfg = CONFIG_ROBOT
                 objeto.colocar(self.data, cfg["place_x"], cfg["place_y"], self.cinta_horno)
                 mujoco.mj_forward(self.model, self.data)
                 print(f"{objeto} enviado a la Cinta 5")
@@ -209,7 +208,7 @@ class PlantaIndustrial:
         self._ultimo_render = self.data.time
 
     def _vista_general(self):
-        self.renderer.update_scene(self.data, camera="overview")
+        self.renderer.update_scene(self.data, camera=CAMARA_VISOR)
         imagen = cv2.cvtColor(self.renderer.render(), cv2.COLOR_RGB2BGR)
         cv2.rectangle(imagen, (0, 0), (imagen.shape[1], 36), (20, 20, 20), -1)
         cv2.putText(imagen, "VISTA GENERAL", (12, 25), cv2.FONT_HERSHEY_SIMPLEX,
@@ -219,7 +218,7 @@ class PlantaIndustrial:
     def _montar_mosaico(self, imagenes):
         arriba = np.hstack(imagenes[0:3])
         abajo = np.hstack(imagenes[3:6])
-        barra = np.full((60, arriba.shape[1], 3), 20, dtype=np.uint8)
+        barra = np.full((ALTO_BARRA_ESTADO, arriba.shape[1], 3), 20, dtype=np.uint8)
 
         estado_cintas = " ".join(str(cinta) for cinta in self.cintas)
         linea1 = (f"t={self.data.time:6.1f}s  {'PAUSA' if self.pausada else 'EN MARCHA'}  "
@@ -251,10 +250,10 @@ class PlantaIndustrial:
             encendido = self.horno.conmutar()
             print(f"Horno {'encendido' if encendido else 'apagado'}")
         elif tecla == ord('+'):
-            self.horno.aumentar_temperatura(10.0)
+            self.horno.aumentar_temperatura(HORNO_PASO_TECLADO)
             print(self.horno)
         elif tecla == ord('-'):
-            self.horno.disminuir_temperatura(10.0)
+            self.horno.disminuir_temperatura(HORNO_PASO_TECLADO)
             print(self.horno)
         elif tecla == ord('e'):
             self.enviar_pieza_al_horno()

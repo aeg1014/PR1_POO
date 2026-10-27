@@ -9,85 +9,27 @@ cada ObjetoIndustrial genera su propio trozo de XML.
 
 import numpy as np
 
-from src import robot
+from src.config import (
+    TIMESTEP, GRAVEDAD, INTEGRADOR,
+    # cintas y barandillas
+    BELT_HALF_LENGTH, BELT_HALF_WIDTH, BELT_Z, BELT_TOP_Z, LANE,
+    RAIL_HALF_LENGTH, RAIL_THICKNESS, RAIL_HALF_HEIGHT, RAIL_CENTER_Z,
+    # cámaras
+    CAM_HEIGHT, CAM_FOVY, CAM_LENS_SIDE_OFFSET, CAM_POLE_SIDE_OFFSET,
+    CAM_OVEN_HEIGHT, CAM_OVEN_SIDE_OFFSET, CAM_OVEN_FOVY,
+    CAM_LEFT_INSPECTION_Y, CAM_LEFT_HEAD_CLEARANCE, CAM_LEFT_POLE_CLEARANCE,
+    # cinta 5
+    BRANCH_Y, BRANCH_HALF_LENGTH, BRANCH_HALF_WIDTH, BRANCH_CENTER_X,
+    BRANCH_RAIL_HALF, BRANCH_RAIL_CENTER_Y, BRANCH_RAIL_CENTER_X, BRANCH_RAIL_HALF_LENGTH,
+    # barandilla de la cinta 4
+    LEFT_RAIL_UPPER_CENTER_Y, LEFT_RAIL_UPPER_HALF,
+    LEFT_RAIL_LOWER_CENTER_Y, LEFT_RAIL_LOWER_HALF,
+    # isla del robot y horno
+    ISLAND_X, ISLAND_Y, ISLAND_Z, ISLAND_HALF_X, ISLAND_HALF_Y,
+    OVEN_CENTER_X,
+)
 
-# Geometría de las cintas
-BELT_HALF_LENGTH = 1.45
-BELT_HALF_WIDTH = 0.28
-BELT_Z = 0.12
-BELT_TOP_Z = 0.18
-LANE = 1.45
-TURN_START = 1.08
-CORNER_SWITCH = 1.27
-RAIL_END_GAP = 0.06
-RAIL_HALF_LENGTH = LANE - BELT_HALF_WIDTH - RAIL_END_GAP
-RAIL_THICKNESS = 0.035
-RAIL_HALF_HEIGHT = 0.10
-RAIL_CENTER_Z = 0.22
-
-# Dimensiones de las piezas. Los cilindros azul (obj1) y verde (obj3)
-# conservan su radio pero tienen ahora la MITAD de la altura anterior.
-OBJECT_HALF = 0.085
-OBJ1_RADIUS = 0.075
-OBJ1_HALF_HEIGHT = 0.045      # antes 0.090 -> altura total 0.09 m
-OBJ2_HALF_Z = 0.070
-OBJ3_RADIUS = 0.085
-OBJ3_HALF_HEIGHT = 0.0375     # antes 0.075 -> altura total 0.075 m
-OBJ4_HALF_Z = 0.065
-OBJECT_CLEARANCE_Z = 0.01
-OBJECT_REST_Z = [
-    BELT_TOP_Z + OBJECT_HALF + OBJECT_CLEARANCE_Z,
-    BELT_TOP_Z + OBJ1_HALF_HEIGHT + OBJECT_CLEARANCE_Z,
-    BELT_TOP_Z + OBJ2_HALF_Z + OBJECT_CLEARANCE_Z,
-    BELT_TOP_Z + OBJ3_HALF_HEIGHT + OBJECT_CLEARANCE_Z,
-    BELT_TOP_Z + OBJ4_HALF_Z + OBJECT_CLEARANCE_Z,
-]
-
-# Cámaras de inspección
-CAM_HEIGHT = 0.92
-CAM_FOVY = 32.0
-CAM_LENS_SIDE_OFFSET = 0.10
-CAM_POLE_SIDE_OFFSET = BELT_HALF_WIDTH + 0.45
-CAM_OVEN_HEIGHT = 0.78
-CAM_OVEN_SIDE_OFFSET = 0.46
-CAM_OVEN_FOVY = 34.0
-CAM_LEFT_INSPECTION_Y = 0.82
-CAM_LEFT_HEAD_CLEARANCE = 0.20
-CAM_LEFT_POLE_CLEARANCE = 0.52
-
-# Cinta 5 (rama hacia el horno)
-BRANCH_SPEED = 0.48
-BRANCH_Y = 0.0
-BRANCH_HALF_LENGTH = 1.15
-BRANCH_HALF_WIDTH = 0.32
-BRANCH_CENTER_X = -(LANE + BRANCH_HALF_LENGTH - 0.05)
-BRANCH_OPEN_HALF = 0.38
-BRANCH_RAIL_HALF = (RAIL_HALF_LENGTH - BRANCH_OPEN_HALF) / 2.0
-BRANCH_RAIL_CENTER_Y = (RAIL_HALF_LENGTH + BRANCH_OPEN_HALF) / 2.0
-BRANCH_RAIL_START_X = -2.00
-BRANCH_RAIL_END_X = -3.48
-BRANCH_RAIL_CENTER_X = 0.5 * (BRANCH_RAIL_START_X + BRANCH_RAIL_END_X)
-BRANCH_RAIL_HALF_LENGTH = 0.5 * abs(BRANCH_RAIL_END_X - BRANCH_RAIL_START_X)
-
-# Hueco en la barandilla de la Cinta 4 para que llegue el Panda
-PICK_RAIL_OPEN_Y_MIN = -0.10
-PICK_RAIL_OPEN_Y_MAX = 0.72
-LEFT_RAIL_UPPER_CENTER_Y = 0.5 * (RAIL_HALF_LENGTH + PICK_RAIL_OPEN_Y_MAX)
-LEFT_RAIL_UPPER_HALF = 0.5 * (RAIL_HALF_LENGTH - PICK_RAIL_OPEN_Y_MAX)
-LEFT_RAIL_LOWER_CENTER_Y = 0.5 * (-RAIL_HALF_LENGTH + PICK_RAIL_OPEN_Y_MIN)
-LEFT_RAIL_LOWER_HALF = 0.5 * (PICK_RAIL_OPEN_Y_MIN + RAIL_HALF_LENGTH)
-
-# Configuración del Panda (la usa robot.py) e isla robotizada
-CONFIG_ROBOT = robot.make_config(lane=LANE, branch_y=BRANCH_Y, branch_speed=BRANCH_SPEED)
-ISLAND_X = CONFIG_ROBOT["base_x"]
-ISLAND_Y = CONFIG_ROBOT["base_y"]
-ISLAND_Z = CONFIG_ROBOT["base_z"]
-ISLAND_HALF_X = 0.18
-ISLAND_HALF_Y = 0.38
-
-# Horno
-OVEN_CENTER_X = -4.05
-OVEN_ENTRY_X = -3.58
+# Todas las constantes de la escena están ahora en config.py.
 
 
 def camera_xyaxes(cam_pos, target):
@@ -156,7 +98,7 @@ def construir_mjcf(xml_objetos):
 
     xml = f"""<mujoco model="square_conveyor_factory">
     <compiler angle="degree" autolimits="true"/>
-    <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4"/>
+    <option timestep="{TIMESTEP}" gravity="{GRAVEDAD}" integrator="{INTEGRADOR}"/>
 
     <visual>
         <global offwidth="1280" offheight="960"/>
@@ -393,36 +335,8 @@ def construir_mjcf(xml_objetos):
         <!-- CÁMARA GENERAL DE LA PLANTA -->
         <camera name="overview" pos="4.6 -4.6 5.2" xyaxes="0.707 0.707 0 -0.49 0.49 0.72" fovy="50"/>
 
-        <!-- OBJETOS -->
-        <body name="obj0" pos="-0.95 -{LANE} {OBJECT_REST_Z[0]}">
-            <freejoint name="obj0_free"/>
-            <geom name="obj0_geom" type="box" size="{OBJECT_HALF} {OBJECT_HALF} {OBJECT_HALF}"
-                  mass="0.18" rgba="0.90 0.16 0.12 1"/>
-        </body>
-
-        <body name="obj1" pos="{LANE} -0.70 {OBJECT_REST_Z[1]}">
-            <freejoint name="obj1_free"/>
-            <geom name="obj1_geom" type="cylinder" size="{OBJ1_RADIUS} {OBJ1_HALF_HEIGHT}"
-                  mass="0.08" rgba="0.12 0.45 0.95 1"/>
-        </body>
-
-        <body name="obj2" pos="0.55 {LANE} {OBJECT_REST_Z[2]}">
-            <freejoint name="obj2_free"/>
-            <geom name="obj2_geom" type="box" size="0.10 0.07 0.07"
-                  mass="0.15" rgba="0.95 0.76 0.10 1"/>
-        </body>
-
-        <body name="obj3" pos="-{LANE} 0.45 {OBJECT_REST_Z[3]}">
-            <freejoint name="obj3_free"/>
-            <geom name="obj3_geom" type="cylinder" size="{OBJ3_RADIUS} {OBJ3_HALF_HEIGHT}"
-                  mass="0.085" rgba="0.18 0.75 0.30 1"/>
-        </body>
-
-        <body name="obj4" pos="0.15 -{LANE} {OBJECT_REST_Z[4]}">
-            <freejoint name="obj4_free"/>
-            <geom name="obj4_geom" type="box" size="0.07 0.11 0.065"
-                  mass="0.14" rgba="0.72 0.28 0.90 1"/>
-        </body>
+        <!-- OBJETOS: cada ObjetoIndustrial genera su propio XML (planta.py) -->
+{xml_objetos}
     </worldbody>
 
     <actuator>

@@ -1,17 +1,23 @@
 import cv2
 import numpy as np
 
+from src.config import (
+    CAMARA_UMBRAL_SATURACION, CAMARA_UMBRAL_BRILLO, CAMARA_AREA_MINIMA,
+    CAMARA_MARGEN_BORDE, CAMARA_TIEMPO_INSPECCION, CAMARA_NUCLEO_MORFOLOGIA,
+    CAMARA_CIRCULARIDAD_MIN, CAMARA_EPSILON_POLIGONO, CAMARA_PROPORCION_CUADRADO,
+)
+
 
 class CamaraInspeccion:
     """Cámara colocada encima de una cinta. Ve las piezas, reconoce su forma
     y para la cinta mientras inspecciona la pieza."""
 
-    UMBRAL_SATURACION = 90
-    UMBRAL_BRILLO = 70
-    AREA_MINIMA = 800
-    MARGEN_BORDE = 3
+    UMBRAL_SATURACION = CAMARA_UMBRAL_SATURACION
+    UMBRAL_BRILLO = CAMARA_UMBRAL_BRILLO
+    AREA_MINIMA = CAMARA_AREA_MINIMA
+    MARGEN_BORDE = CAMARA_MARGEN_BORDE
 
-    def __init__(self, nombre, titulo, cinta, tiempo_inspeccion=1.5):
+    def __init__(self, nombre, titulo, cinta, tiempo_inspeccion=CAMARA_TIEMPO_INSPECCION):
         self.nombre = nombre
         self.titulo = titulo
         self.cinta = cinta
@@ -57,7 +63,7 @@ class CamaraInspeccion:
         minimo = (0, self.UMBRAL_SATURACION, self.UMBRAL_BRILLO)
         maximo = (180, 255, 255)
         mascara = cv2.inRange(hsv, minimo, maximo)
-        nucleo = np.ones((5, 5), np.uint8)
+        nucleo = np.ones((CAMARA_NUCLEO_MORFOLOGIA, CAMARA_NUCLEO_MORFOLOGIA), np.uint8)
         mascara = cv2.morphologyEx(mascara, cv2.MORPH_OPEN, nucleo)
         return mascara
 
@@ -80,17 +86,17 @@ class CamaraInspeccion:
         area = cv2.contourArea(contorno)
         perimetro = cv2.arcLength(contorno, True)
         circularidad = 4 * np.pi * area / (perimetro * perimetro)
-        aproximacion = cv2.approxPolyDP(contorno, 0.04 * perimetro, True)
+        aproximacion = cv2.approxPolyDP(contorno, CAMARA_EPSILON_POLIGONO * perimetro, True)
         vertices = len(aproximacion)
 
-        if circularidad > 0.85:
+        if circularidad > CAMARA_CIRCULARIDAD_MIN:
             return "circulo"
         # una caja vista un poco de lado enseña también una cara lateral,
         # por eso su contorno puede tener de 4 a 6 esquinas
         if 4 <= vertices <= 6:
             (_, _), (lado1, lado2), _ = cv2.minAreaRect(contorno)
             proporcion = max(lado1, lado2) / min(lado1, lado2)
-            if proporcion < 1.25:
+            if proporcion < CAMARA_PROPORCION_CUADRADO:
                 return "cuadrado"
             return "rectangulo"
         return "otra"

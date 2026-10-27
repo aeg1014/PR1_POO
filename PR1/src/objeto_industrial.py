@@ -1,12 +1,15 @@
 import mujoco
 
+from src.config import (
+    ALTURA_CINTA, HOLGURA_PIEZA, LIMITE_CAIDA_X, LIMITE_CAIDA_Y, LIMITE_CAIDA_Z,
+)
 
 
 class ObjetoIndustrial:
     """Pieza que circula por las cintas. Clase base de Caja y Cilindro."""
 
-    ALTURA_CINTA = 0.18
-    HOLGURA = 0.01
+    ALTURA_CINTA = ALTURA_CINTA
+    HOLGURA = HOLGURA_PIEZA
 
     def __init__(self, numero, color, masa, medio_alto):
         self.numero = numero
@@ -70,7 +73,7 @@ class ObjetoIndustrial:
 
     def se_ha_caido(self, data):
         x, y, z = self.posicion(data)
-        return z < -0.1 or abs(x) > 5.0 or abs(y) > 2.4
+        return z < LIMITE_CAIDA_Z or abs(x) > LIMITE_CAIDA_X or abs(y) > LIMITE_CAIDA_Y
 
     def estabilizar(self, data):
         """Las piezas se trasladan pero no giran."""

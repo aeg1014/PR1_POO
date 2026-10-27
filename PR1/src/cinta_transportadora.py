@@ -1,20 +1,24 @@
 import mujoco
 import numpy as np
 
+from src.config import (
+    CINTA_KP_VELOCIDAD, CINTA_KP_CENTRADO, CINTA_FUERZA_MAXIMA,
+    CINTA_INICIO_GIRO, CINTA_CAMBIO_CINTA, CINTA_VELOCIDAD_RODILLOS,
+)
 
 
 class CintaTransportadora:
     """Una cinta de la planta. Sabe si está en marcha y cómo mover las piezas."""
 
     # Atributos de clase: son iguales para todas las cintas
-    KP_VELOCIDAD = 7.0
-    KP_CENTRADO = 12.0
-    FUERZA_MAXIMA = 12.0
-    INICIO_GIRO = 1.08
-    CAMBIO_CINTA = 1.27
+    KP_VELOCIDAD = CINTA_KP_VELOCIDAD
+    KP_CENTRADO = CINTA_KP_CENTRADO
+    FUERZA_MAXIMA = CINTA_FUERZA_MAXIMA
+    INICIO_GIRO = CINTA_INICIO_GIRO
+    CAMBIO_CINTA = CINTA_CAMBIO_CINTA
 
     def __init__(self, numero, nombre, velocidad, direccion, centro, giro=None,
-                 rodillos=(), velocidad_rodillos=5.5):
+                 rodillos=(), velocidad_rodillos=CINTA_VELOCIDAD_RODILLOS):
         self.numero = numero
         self.nombre = nombre
         self.velocidad = velocidad
