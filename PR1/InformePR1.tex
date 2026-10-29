@@ -1,0 +1,1245 @@
+
+\documentclass[12pt,a4paper]{article}
+
+% =========================================================
+% PAQUETES
+% =========================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{lastpage}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage[htt]{hyphenat}
+
+% =========================================================
+% CONFIGURACIÓN GENERAL
+% =========================================================
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=2.7cm,
+    right=2.7cm
+}
+
+\setstretch{1.15}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+% Color institucional aproximado para títulos.
+% Puede modificarse si se desea emplear otro tono.
+\definecolor{UBUblue}{RGB}{0,82,147}
+\definecolor{lightgray}{RGB}{245,245,245}
+\definecolor{UBUlight}{RGB}{235,243,249}
+\definecolor{UBUdark}{RGB}{34,45,58}
+
+% Carpeta donde se encuentra el logotipo institucional
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=UBUblue,
+    urlcolor=UBUblue,
+    citecolor=UBUblue,
+    pdftitle={Práctica I - Refactorización de una planta industrial mediante POO},
+    pdfauthor={Universidad de Burgos}
+}
+
+% =========================================================
+% DATOS DEL TRABAJO
+% =========================================================
+
+\newcommand{\universidad}{Universidad de Burgos}
+\newcommand{\grado}{Grado en Tecnologías Digitales para la Empresa}
+\newcommand{\asignatura}{Programación Modular y Orientación a Objetos}
+\newcommand{\titulotrabajo}{Práctica I: Refactorización de una planta industrial}
+
+\newcommand{\nombrealumno}{Alejandro Esteban Gómez}
+\newcommand{\dni}{71565225N}
+\newcommand{\correo}{aeg1014@alu.ubu.es}
+\newcommand{\grupo}{Grupo 1}
+\newcommand{\profesor}{Jaime Andres Rincon Arango}
+\newcommand{\cursoacademico}{2026-2027}
+\newcommand{\fechaentrega}{2 Noviembre 2026}
+
+% Enlace al repositorio GitHub con el código completo (OBLIGATORIO)
+\newcommand{\repositorio}{https://github.com/aeg1014/PR1_POO.git}
+
+
+% =========================================================
+% FORMATO DE TÍTULOS
+% =========================================================
+
+\titleformat{\section}
+  {\Large\bfseries\color{UBUblue}}
+  {\thesection.}{0.6em}{}
+
+\titleformat{\subsection}
+  {\large\bfseries\color{UBUblue}}
+  {\thesubsection.}{0.6em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}
+  {\thesubsubsection.}{0.6em}{}
+
+% =========================================================
+% CABECERA Y PIE
+% =========================================================
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[L]{\small \asignatura}
+\fancyhead[R]{\small Práctica I}
+
+\fancyfoot[L]{\small \universidad}
+\fancyfoot[C]{\small \nombrealumno}
+\fancyfoot[R]{\small Página \thepage\ de \pageref{LastPage}}
+
+\setlength{\headheight}{15pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+
+% =========================================================
+% ESTILO DE CÓDIGO (fragmentos de Python)
+% =========================================================
+\lstdefinestyle{python}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{UBUblue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{UBUdark!70!red},
+    backgroundcolor=\color{lightgray},
+    frame=single,
+    rulecolor=\color{UBUlight!60!UBUblue},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+             {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+             {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+\lstset{style=python}
+
+% Permite partir identificadores largos (p. ej. \texttt{objeto\_detectado}) tras el guion bajo
+\let\guionbajo\_
+\renewcommand{\_}{\guionbajo\allowbreak}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\lstlistingname}{Código}
+
+\graphicspath{{logo/}{figuras/}}
+
+% =========================================================
+% DOCUMENTO
+% =========================================================
+
+\begin{document}
+
+% =========================================================
+% PORTADA
+% =========================================================
+
+\begin{titlepage}
+    \thispagestyle{empty}
+
+    % Elementos gráficos de fondo
+    \begin{tikzpicture}[remember picture,overlay]
+        % Banda institucional izquierda
+        \fill[UBUblue]
+            (current page.north west)
+            rectangle
+            ([xshift=1.15cm]current page.south west);
+
+        % Línea superior de acento
+        \fill[UBUblue]
+            ([xshift=1.15cm,yshift=-0.8cm]current page.north west)
+            rectangle
+            ([yshift=-0.95cm]current page.north east);
+
+        % Bloque inferior suave
+        \fill[UBUlight]
+            ([xshift=1.15cm,yshift=4.0cm]current page.south west)
+            rectangle
+            (current page.south east);
+    \end{tikzpicture}
+
+    \hspace*{0.8cm}
+    \begin{minipage}[t]{0.89\textwidth}
+
+        \vspace*{0.2cm}
+
+        % -------------------------------------------------
+        % LOGO UBU
+        % El archivo debe estar en: logo/logo_ubu.png
+        % -------------------------------------------------
+        \IfFileExists{logo/logo_ubu.png}{%
+            \includegraphics[width=0.64\textwidth]{logo/logo_ubu.png}%
+        }{%
+            \fbox{%
+                \parbox[c][2.8cm][c]{0.62\textwidth}{%
+                    \centering
+                    \textbf{LOGO UNIVERSIDAD DE BURGOS}\\[0.25cm]
+                    Añadir \texttt{logo/logo\_ubu.png}%
+                }%
+            }%
+        }
+
+        \vspace{1.25cm}
+
+        {\small\bfseries\color{UBUblue}\MakeUppercase{\grado}}\\[0.22cm]
+        {\large\color{UBUdark}\universidad}
+
+        \vspace{1.55cm}
+
+        {\small\bfseries\color{UBUblue}\MakeUppercase{Asignatura}}\\[0.18cm]
+        {\LARGE\bfseries\color{UBUdark}\asignatura}
+
+        \vspace{0.75cm}
+        {\color{UBUblue}\rule{0.22\textwidth}{3pt}}
+
+        \vspace{1.0cm}
+
+        {\small\bfseries\color{UBUblue}\MakeUppercase{Trabajo / práctica}}\\[0.30cm]
+        {\Huge\bfseries\color{UBUdark}\titulotrabajo}
+
+        \vfill
+
+        % -------------------------------------------------
+        % BLOQUE DE DATOS DEL ESTUDIANTE
+        % -------------------------------------------------
+        \noindent
+        \colorbox{UBUlight}{%
+            \parbox{0.96\linewidth}{%
+                \vspace{0.35cm}
+                \begin{tabularx}{\linewidth}{>{\leavevmode\bfseries\color{UBUdark}}p{4.0cm} X}
+                    Estudiante & \nombrealumno \\[0.20cm]
+                    DNI / NIE & \dni \\[0.20cm]
+                    Correo electrónico & \correo \\[0.20cm]
+                    Grupo & \grupo \\[0.20cm]
+                    Profesor/a & \profesor \\[0.20cm]
+                    Curso académico & \cursoacademico \\[0.20cm]
+                    Fecha de entrega & \fechaentrega \\
+                \end{tabularx}
+                \vspace{0.15cm}
+            }%
+        }
+
+        \vspace{0.85cm}
+
+        {\small\color{UBUdark}
+        Campus de Miranda de Ebro\hfill
+        \textbf{Universidad de Burgos}}
+
+        \vspace*{0.65cm}
+
+    \end{minipage}
+\end{titlepage}
+
+% =========================================================
+% ÍNDICE
+% =========================================================
+
+\tableofcontents
+\newpage
+
+% =========================================================
+% 1. INTRODUCCIÓN
+% =========================================================
+
+\section{Introducción}
+
+En esta práctica se parte de una simulación de una planta industrial desarrollada en
+Python con \textbf{MuJoCo} (motor físico), \textbf{OpenCV} (visión artificial) y
+\textbf{NumPy}. La planta está formada por cuatro cintas transportadoras que forman un
+circuito cerrado, una quinta cinta que conduce las piezas hacia un horno, cámaras de
+inspección situadas sobre cada cinta, varias piezas de distinta geometría y una isla
+robotizada con un manipulador \textit{Franka Emika Panda} que dispone de cinemática
+inversa (IK).
+
+El código suministrado funcionaba, pero estaba escrito de forma procedural: un único
+script con funciones, variables globales y estructuras de datos compartidas. El trabajo
+realizado consiste en \textbf{refactorizar} ese código mediante Programación Orientada a
+Objetos, de manera que cada elemento físico de la planta quede representado por una clase
+con una responsabilidad clara, y que el resultado sirva como base para la Práctica~II.
+
+Las funcionalidades principales de la aplicación final son:
+
+\begin{itemize}[leftmargin=1.2cm]
+    \item Transporte de piezas por un circuito de cuatro cintas con control individual de
+          marcha y parada, más una cinta de salida hacia el horno.
+    \item Inspección visual con cinco cámaras: captura de imagen, detección de la pieza y
+          reconocimiento de su forma (círculo, cuadrado, rectángulo u otra) con OpenCV.
+    \item Parada automática de la cinta cuando su cámara detecta una pieza, mediante la
+          variable booleana \texttt{objeto\_detectado}.
+    \item Horno con contador de piezas, control de temperatura y cambio de color en MuJoCo
+          en función de la temperatura.
+    \item Robot Panda que reutiliza la IK proporcionada sin modificarla.
+    \item Ventana OpenCV con el mosaico de las cámaras, una vista general y una barra de
+          estado, además del visor 3D de MuJoCo.
+\end{itemize}
+
+El lenguaje empleado es \textbf{Python 3}, con las bibliotecas \texttt{mujoco}~($\geq$3.2),
+\texttt{numpy} y \texttt{opencv-python}. El desarrollo se ha realizado en PyCharm sobre
+Windows.
+
+% =========================================================
+% 2. OBJETIVOS
+% =========================================================
+\clearpage
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+Transformar la simulación procedural de la planta industrial en una arquitectura
+orientada a objetos modular, mantenible y extensible, conservando todo su funcionamiento
+(simulación en MuJoCo, visualización de cámaras con OpenCV y robot con IK) y añadiendo la
+detección de formas, la parada automática de cintas y el control térmico del horno.
+
+\subsection{Objetivos específicos}
+
+\begin{enumerate}
+    \item Identificar los elementos de la planta que deben representarse mediante clases.
+    \item Diseñar atributos y métodos coherentes con la responsabilidad de cada clase.
+    \item Eliminar las variables globales de estado (como \texttt{BANDERA\_CINTA\_1}) y
+          encapsularlas dentro de los objetos.
+    \item Utilizar composición entre objetos y, donde aporta claridad, herencia.
+    \item Integrar el procesamiento de imagen con OpenCV dentro de la clase de cámara.
+    \item Comunicar el resultado de la detección visual a la cinta correspondiente.
+    \item Relacionar el estado interno del horno (temperatura) con su representación
+          visual en MuJoCo.
+    \item Validar el funcionamiento mediante las pruebas mínimas del enunciado.
+\end{enumerate}
+
+% =========================================================
+% 3. ANÁLISIS DEL PROBLEMA
+% =========================================================
+\clearpage
+\section{Análisis del problema}
+
+\subsection{Descripción del problema}
+
+La planta simula una línea de transporte en la que las piezas recorren el circuito
+\textit{Cinta~1 $\rightarrow$ Cinta~2 $\rightarrow$ Cinta~3 $\rightarrow$ Cinta~4
+$\rightarrow$ Cinta~1} en sentido horario. Desde la Cinta~4 las piezas pueden pasar a la
+Cinta~5, que las conduce al horno. MuJoCo no dispone de una primitiva de cinta con
+velocidad de superficie, por lo que el transporte se modela aplicando sobre cada pieza una
+fuerza tangencial con realimentación de velocidad, una fuerza de centrado lateral y una
+transición suave en las esquinas.
+
+\subsection{Análisis del código procedural inicial}
+
+El código de partida estaba organizado en un único fichero con funciones como
+\texttt{build\_mjcf()}, \texttt{get\_ids()}, \texttt{reset\_objects()},
+\texttt{update\_segment()}, \texttt{cinta\_activa()}, \texttt{conmutar\_cinta()},
+\texttt{transport\_force()}, \texttt{apply\_transport()},
+\texttt{render\_camera\_mosaic()} y \texttt{run()}. Al analizarlo se detectaron los
+siguientes problemas:
+
+\begin{itemize}
+    \item \textbf{Estado global compartido}: la marcha de cada cinta se controlaba con
+          variables globales \texttt{BANDERA\_CINTA\_1}, \texttt{BANDERA\_CINTA\_2}, \dots, y
+          las funciones las consultaban o modificaban directamente.
+    \item \textbf{Datos en estructuras paralelas}: la información de las piezas (ids de
+          MuJoCo, segmento actual, altura de reposo) se guardaba en listas separadas
+          indexadas por número de pieza, lo que obligaba a mantenerlas sincronizadas a mano.
+    \item \textbf{Funciones con demasiadas responsabilidades}: \texttt{run()} construía el
+          modelo, creaba ventanas, ejecutaba el bucle de simulación, renderizaba las
+          cámaras y procesaba el teclado.
+    \item \textbf{Lógica dispersa}: la física de cada cinta (dirección, centro, giro en la
+          esquina) se decidía en \texttt{transport\_force()} mediante condicionales sobre el
+          número de segmento, en lugar de residir en la propia cinta.
+    \item \textbf{Ausencia de visión real}: las cámaras solo generaban imágenes para el
+          mosaico; no se analizaban ni influían en la planta.
+\end{itemize}
+
+A partir de este análisis se asignó cada responsabilidad a un objeto: las funciones de
+transporte pasan a \texttt{CintaTransportadora}, las de piezas a
+\texttt{ObjetoIndustrial}, el render y la visión a \texttt{CamaraInspeccion}, y el bucle
+\texttt{run()} se convierte en los métodos de \texttt{PlantaIndustrial}.
+
+\begin{table}[H]
+    \centering
+    \caption{Correspondencia entre el código procedural y la versión orientada a objetos.}
+    \label{tab:refactor}
+    \begin{tabularx}{\textwidth}{p{4.6cm}X}
+        \toprule
+        \textbf{Código procedural} & \textbf{Versión POO} \\
+        \midrule
+        \texttt{BANDERA\_CINTA\_n} & Atributo \texttt{activa} de cada \texttt{CintaTransportadora} \\
+        \texttt{cinta\_activa()}, \texttt{conmutar\_cinta()} & \texttt{esta\_activa()}, \texttt{arrancar()}, \texttt{detener()}, \texttt{conmutar()} \\
+        \texttt{transport\_force()} & \texttt{CintaTransportadora.calcular\_fuerza()} \\
+        \texttt{apply\_transport()} & \texttt{PlantaIndustrial.\_aplicar\_transporte()} + \texttt{ObjetoIndustrial.aplicar\_fuerza()} \\
+        \texttt{update\_segment()} & \texttt{ObjetoIndustrial.actualizar\_cinta()} + \texttt{CintaTransportadora.ha\_terminado()} \\
+        \texttt{reset\_objects()} & \texttt{PlantaIndustrial.reiniciar()} + \texttt{ObjetoIndustrial.colocar()} \\
+        \texttt{get\_ids()} & Método \texttt{conectar(model)} de cada clase \\
+        \texttt{build\_mjcf()} & \texttt{escena.construir\_mjcf()} + \texttt{generar\_xml()} de cada pieza \\
+        \texttt{render\_camera\_mosaic()} & \texttt{CamaraInspeccion.capturar()/dibujar()} + \texttt{PlantaIndustrial.\_montar\_mosaico()} \\
+        \texttt{run()} & \texttt{PlantaIndustrial.inicializar()}, \texttt{actualizar()}, \texttt{procesar\_teclado()}, \texttt{ejecutar()} \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{Requisitos funcionales}
+
+\begin{enumerate}
+    \item La simulación debe ejecutarse en MuJoCo con visor 3D.
+    \item Cada cinta debe tener su propio estado y poder arrancarse y detenerse de forma
+          independiente (teclas \texttt{1}--\texttt{5}).
+    \item Cada cámara debe capturar su imagen, mostrarla en OpenCV, detectar si hay una
+          pieza y determinar su forma.
+    \item La detección debe actualizar la variable booleana \texttt{objeto\_detectado} y,
+          cuando sea verdadera, detener la cinta asociada.
+    \item El horno debe registrar las piezas que entran, gestionar su temperatura y
+          cambiar de color en MuJoCo según ésta.
+    \item El robot Panda debe seguir funcionando con la IK proporcionada.
+    \item Controles de teclado: pausa, reinicio, captura, encendido del horno, ajuste de
+          temperatura y envío manual de una pieza al horno.
+\end{enumerate}
+\clearpage
+\subsection{Restricciones y consideraciones}
+
+\begin{itemize}
+    \item No se acepta meter todo el código en una única clase: cada clase debe tener una
+          responsabilidad clara.
+    \item Debe reducirse al mínimo el uso de variables globales.
+    \item La detección visual debe realizarse dentro de la clase de cámara.
+    \item La cinemática inversa del robot \textbf{no} debe reimplementarse; se usa como
+          caja negra.
+    \item \texttt{main.py} debe quedar en la raíz y actuar solo como punto de entrada; la
+          lógica va dentro de \texttt{src/}.
+\end{itemize}
+
+% =========================================================
+% 4. DISEÑO ORIENTADO A OBJETOS
+% =========================================================
+\clearpage
+\section{Diseño orientado a objetos}
+
+El diseño sigue la idea de que \emph{cada elemento físico de la planta es un objeto que
+conoce su propio estado y sabe actuar sobre MuJoCo}, mientras que
+\texttt{PlantaIndustrial} se limita a crearlos, conectarlos y coordinarlos en cada paso de
+la simulación.
+
+\subsection{Identificación de clases}
+
+\begin{table}[H]
+    \centering
+    \caption{Clases principales de la aplicación.}
+    \label{tab:clases}
+    \small
+    \begin{tabularx}{\textwidth}{p{3.7cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Clase} & \textbf{Responsabilidad} & \textbf{Elementos principales} \\
+        \midrule
+        \texttt{PlantaIndustrial} & Coordinar todos los elementos: construir el modelo, ejecutar el bucle principal, montar el mosaico y procesar el teclado. &
+        \texttt{cintas}, \texttt{camaras}, \texttt{objetos}, \texttt{horno}, \texttt{robot}; \texttt{inicializar()}, \texttt{actualizar()}, \texttt{procesar\_teclado()}, \texttt{ejecutar()} \\
+        \addlinespace
+        \texttt{CintaTransportadora} & Guardar el estado y la geometría de una cinta y calcular la fuerza que ejerce sobre una pieza. &
+        \texttt{numero}, \texttt{velocidad}, \texttt{direccion}, \texttt{activa}, \texttt{siguiente}; \texttt{arrancar()}, \texttt{detener()}, \texttt{calcular\_fuerza()} \\
+        \addlinespace
+        \texttt{CamaraInspeccion} & Capturar la imagen de una cámara MuJoCo, detectar la pieza y su forma con OpenCV y controlar su cinta. &
+        \texttt{cinta}, \texttt{objeto\_detectado}, \texttt{forma\_detectada}; \texttt{capturar()}, \texttt{detectar\_forma()}, \texttt{actualizar()} \\
+        \addlinespace
+        \texttt{ObjetoIndustrial} & Representar una pieza: su geometría, su cuerpo en MuJoCo y la cinta por la que circula. &
+        \texttt{forma}, \texttt{cinta}, \texttt{body\_id}; \texttt{generar\_xml()}, \texttt{colocar()}, \texttt{aplicar\_fuerza()} \\
+        \addlinespace
+        \texttt{Caja}, \texttt{Cilindro} & Subclases de \texttt{ObjetoIndustrial} con la geometría concreta. &
+        \texttt{medidas} / \texttt{radio}; \texttt{generar\_xml()}, \texttt{estabilizar()} \\
+        \addlinespace
+        \texttt{Horno} & Registrar las piezas que entran, controlar la temperatura y reflejarla en el color del horno. &
+        \texttt{temperatura}, \texttt{numero\_piezas}, \texttt{geom\_id}; \texttt{aumentar\_temperatura()}, \texttt{actualizar\_color()} \\
+        \addlinespace
+        \texttt{RobotPanda} & Envolver el módulo \texttt{robot.py} (IK proporcionada) para usarlo como un objeto más de la planta. &
+        \texttt{config}, \texttt{estado}, \texttt{modo\_prueba\_ik}; \texttt{conectar()}, \texttt{controlar()}, \texttt{ir\_a\_objetivo()} \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Además de las clases, el proyecto tiene tres módulos de apoyo que no modelan objetos del
+dominio: \texttt{config.py} (todas las constantes de configuración), \texttt{escena.py}
+(generación del XML de la escena) y \texttt{robot.py} (IK y máquina de estados del Panda).
+
+\subsection{Diagrama de clases UML}
+
+\begin{figure}[H]
+    \centering
+    \IfFileExists{figuras/diagrama_uml.png}{%
+        \includegraphics[width=\textwidth]{diagrama_uml.png}%
+    }{%
+        \fbox{%
+            \parbox[c][6cm][c]{0.82\textwidth}{%
+                \centering
+                Insertar aquí el diagrama de clases UML\\[0.3cm]
+                \texttt{diagrama\_uml.png}%
+            }%
+        }%
+    }
+    \caption{Diagrama de clases UML de la aplicación.}
+    \label{fig:uml}
+\end{figure}
+
+\subsection{Relaciones entre clases}
+
+\begin{itemize}
+    \item \textbf{Composición}: \texttt{PlantaIndustrial} crea y posee las cintas, las
+          cámaras, las piezas, el horno y el robot. Su ciclo de vida depende de la planta
+          (se crean en su constructor).
+    \item \textbf{Asociación}: cada \texttt{CamaraInspeccion} guarda una referencia a la
+          \texttt{CintaTransportadora} que vigila, y la controla llamando a sus métodos
+          \texttt{detener()} y \texttt{arrancar()}. Cada \texttt{ObjetoIndustrial} guarda
+          la cinta por la que circula en ese momento.
+    \item \textbf{Autoasociación}: cada cinta apunta a la \texttt{siguiente}, formando el
+          circuito $1\rightarrow2\rightarrow3\rightarrow4\rightarrow1$. Así una pieza pasa
+          de cinta con \texttt{self.cinta = self.cinta.siguiente}, sin índices de segmento.
+    \item \textbf{Herencia}: \texttt{Caja} y \texttt{Cilindro} heredan de
+          \texttt{ObjetoIndustrial}.
+    \item \textbf{Dependencia}: \texttt{RobotPanda} usa las funciones del módulo
+          \texttt{robot.py}; \texttt{PlantaIndustrial} usa \texttt{escena.py} y todas las
+          clases dependen de \texttt{config.py}.
+\end{itemize}
+
+% =========================================================
+% 5. PRINCIPIOS DE POO APLICADOS
+% =========================================================
+
+\section{Principios de programación orientada a objetos aplicados}
+
+\subsection{Encapsulación}
+
+Cada objeto guarda su propio estado y lo expone mediante métodos. El ejemplo más claro es
+la marcha de las cintas: las antiguas variables globales \texttt{BANDERA\_CINTA\_n} han
+desaparecido y ahora cada cinta tiene su atributo \texttt{activa}, que se modifica con
+\texttt{arrancar()}, \texttt{detener()} y \texttt{conmutar()}.
+
+Los detalles internos se marcan con guion bajo (convención de Python para atributos
+privados): por ejemplo, \texttt{\_ids\_rodillos} en la cinta, \texttt{\_qpos} y
+\texttt{\_dof} en las piezas, o \texttt{\_inspeccionando} y \texttt{\_contorno} en la
+cámara. También se usan \texttt{@property} para validar datos: la velocidad de una cinta
+no puede ser negativa.
+
+\begin{lstlisting}[caption={Velocidad de la cinta protegida mediante una propiedad.}]
+@property
+def velocidad(self):
+    return self._velocidad
+
+@velocidad.setter
+def velocidad(self, valor):
+    if valor < 0:
+        raise ValueError("La velocidad de la cinta no puede ser negativa")
+    self._velocidad = valor
+\end{lstlisting}
+
+En el horno, la temperatura solo cambia a través de \texttt{aumentar\_temperatura()} y
+\texttt{disminuir\_temperatura()}, que además la mantienen entre la temperatura ambiente
+y la máxima.
+
+\subsection{Abstracción}
+
+Las clases representan conceptos del dominio y ocultan cómo se implementan en MuJoCo. Desde
+\texttt{PlantaIndustrial} basta con escribir \texttt{objeto.cinta.calcular\_fuerza(pos,
+vel)} sin conocer el controlador interno, o \texttt{camara.actualizar(renderer, data)} sin
+saber que por dentro hay una conversión a HSV, una apertura morfológica y un análisis de
+contornos. Del mismo modo, \texttt{RobotPanda} oculta las funciones y el diccionario de
+estado de \texttt{robot.py} detrás de métodos como \texttt{controlar()} o
+\texttt{ir\_a\_home()}.
+
+\subsection{Herencia}
+
+Se ha utilizado una jerarquía sencilla para las piezas: \texttt{ObjetoIndustrial} contiene
+todo lo común (conexión con MuJoCo, posición, fuerzas, cambio de cinta) y las subclases
+\texttt{Caja} y \texttt{Cilindro} solo añaden lo que las distingue: sus medidas y su
+geometría en el XML. Se eligió herencia porque la relación ``un cilindro \emph{es un}
+objeto industrial'' es natural y evita duplicar código. En el resto de clases se ha
+preferido la composición, ya que sus relaciones son de tipo ``\emph{tiene un}'' (la
+planta tiene cintas, la cámara tiene una cinta asociada).
+
+\subsection{Polimorfismo}
+
+\texttt{generar\_xml()} se declara en la clase base lanzando
+\texttt{NotImplementedError} (actúa como método abstracto) y cada subclase lo
+sobrescribe. La planta construye la escena sin preguntar el tipo de cada pieza:
+
+\begin{lstlisting}[caption={Uso polimórfico de \texttt{generar\_xml()}.}]
+xml_objetos = "\n".join(obj.generar_xml() for obj in self.objetos)
+\end{lstlisting}
+
+También \texttt{estabilizar()} se sobrescribe en \texttt{Cilindro}: llama primero a la
+versión de la clase base con \texttt{super()} y después centra el cilindro en la banda en
+los tramos rectos, porque al rodar tiende a desviarse. Además, varias clases redefinen
+\texttt{\_\_str\_\_()} para mostrar su estado en la barra de la ventana (por ejemplo,
+\texttt{C1:ON} o \texttt{Horno 85C LISTO piezas=2}).
+
+% =========================================================
+% 6. IMPLEMENTACIÓN
+% =========================================================
+\clearpage
+\section{Implementación}
+
+\subsection{Estructura del proyecto}
+
+\begin{itemize}
+    \item \texttt{main.py}: punto de entrada; solo crea la planta y llama a
+          \texttt{ejecutar()}.
+    \item \texttt{requirements.txt}: dependencias (\texttt{mujoco}, \texttt{numpy},
+          \texttt{opencv-python}).
+    \item \texttt{src/PlantaIndustrial.py}: clase coordinadora y bucle principal.
+    \item \texttt{src/CintaTransportadora.py}, \texttt{src/CamaraInspeccion.py},
+          \texttt{src/ObjetoIndustrial.py}, \texttt{src/Horno.py},
+          \texttt{src/RobotPanda.py}: una clase (o jerarquía) por fichero.
+    \item \texttt{src/config.py}: constantes de configuración centralizadas.
+    \item \texttt{src/escena.py}: generación del modelo MJCF de la planta.
+    \item \texttt{src/robot.py}: IK y control del Panda (proporcionado).
+    \item \texttt{src/vendor/mujoco\_menagerie/}: modelo del Franka Emika Panda, que se
+          descarga automáticamente si no existe.
+\end{itemize}
+
+\begin{lstlisting}[caption={\texttt{main.py}: el programa principal queda separado de la lógica.}]
+from src.PlantaIndustrial import PlantaIndustrial
+
+def main():
+    planta = PlantaIndustrial(mostrar_visor=True, modo_prueba_ik=True)
+    planta.ejecutar()
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+\clearpage
+\subsection{Clases y métodos principales}
+
+\subsubsection{CintaTransportadora}
+
+Cada cinta almacena su número, nombre, velocidad, dirección de transporte (vector
+unitario), centro de la banda, dirección de giro en la esquina, referencia a la cinta
+siguiente y su estado \texttt{activa}. Los parámetros del controlador (\texttt{VEL\_KP},
+\texttt{CENTER\_KP}, \texttt{MAX\_FORCE}) son atributos de clase, ya que son iguales para
+todas las cintas.
+
+El método \texttt{calcular\_fuerza(pos, vel)} contiene la física que antes estaba en
+\texttt{transport\_force()}: si la cinta está parada, frena la pieza; si está en marcha,
+calcula la velocidad deseada (mezclando la dirección de la cinta y la de giro al acercarse
+a la esquina), aplica un control proporcional sobre la velocidad y añade una fuerza de
+centrado lateral. \texttt{actualizar\_rodillos()} hace girar o detiene los actuadores de
+los rodillos según el estado, de modo que en el visor se ve qué cintas están paradas.
+
+\subsubsection{ObjetoIndustrial, Caja y Cilindro}
+
+Cada pieza guarda su número, nombre, color, masa, forma, la cinta actual y los índices de
+MuJoCo (\texttt{body\_id}, \texttt{\_qpos}, \texttt{\_dof}) que obtiene en
+\texttt{conectar(model)}. Ofrece métodos para leer su posición y velocidad, colocarla en un
+punto, aplicarle fuerza, cambiar de cinta al llegar al final de la actual
+(\texttt{actualizar\_cinta()}) y comprobar si se ha caído. Se simulan cinco piezas: un
+cubo, dos cilindros y dos cajas rectangulares.
+\clearpage
+\subsubsection{PlantaIndustrial}
+
+En el constructor crea todos los objetos a partir de las tablas de \texttt{config.py}
+(\texttt{CINTAS}, \texttt{PIEZAS}, \texttt{NOMBRES\_CAMARAS}) y enlaza el circuito de
+cintas. \texttt{inicializar()} construye el modelo MuJoCo, llama a \texttt{conectar()} en
+cada objeto y abre las ventanas. Cada paso de simulación se ejecuta en
+\texttt{actualizar()}:
+
+\begin{lstlisting}[caption={Un paso de simulación en \texttt{PlantaIndustrial.actualizar()}.}]
+def actualizar(self):
+    if self.pausada:
+        return
+    self.robot.antes_del_paso(self.model, self.data, self.objetos, self.cintas)
+    self._aplicar_transporte()
+    self.robot.controlar(self.model, self.data)
+
+    mujoco.mj_step(self.model, self.data)
+
+    for objeto in self.objetos:
+        objeto.estabilizar(self.data)
+    self.robot.despues_del_paso(self.model, self.data)
+
+    self.horno.actualizar(self.model.opt.timestep)
+    self.horno.actualizar_color(self.model)
+    for cinta in self.cintas:
+        cinta.actualizar_rodillos(self.data)
+    mujoco.mj_forward(self.model, self.data)
+\end{lstlisting}
+
+Las cámaras se actualizan a 20~fotogramas por segundo de tiempo simulado
+(\texttt{actualizar\_camaras()}), y el bucle \texttt{ejecutar()} sincroniza el visor,
+muestra el mosaico y procesa el teclado. La función \texttt{run()} original queda así
+repartida en métodos cortos con una tarea cada uno.
+
+\subsubsection{RobotPanda}
+
+La IK no se ha modificado. \texttt{RobotPanda} actúa como \emph{adaptador}: guarda los
+identificadores y el diccionario de estado que necesita \texttt{robot.py} y traduce los
+objetos de la planta a las listas de números que esperan sus funciones (por ejemplo,
+convierte \texttt{obj.cinta.numero} en el índice de segmento). Tiene dos modos: prueba de
+IK (el robot va a un objetivo cartesiano, teclas \texttt{T} y \texttt{H}) y
+\textit{pick-and-place} automático.
+
+\subsection{Controles de teclado}
+
+\begin{table}[H]
+    \centering
+    \caption{Teclas disponibles en la ventana de cámaras.}
+    \label{tab:teclas}
+    \begin{tabularx}{\textwidth}{p{2.6cm}X}
+        \toprule
+        \textbf{Tecla} & \textbf{Acción} \\
+        \midrule
+        \texttt{Q} / \texttt{ESC} & Salir. \\
+        \texttt{P} & Pausar o reanudar la simulación. \\
+        \texttt{1}--\texttt{5} & Conmutar la marcha de la cinta correspondiente. \\
+        \texttt{R} & Reiniciar la planta (piezas, cintas, cámaras, horno y robot). \\
+        \texttt{S} & Guardar una captura del mosaico en \texttt{capturas/}. \\
+        \texttt{O} & Encender o apagar el horno. \\
+        \texttt{+} / \texttt{-} & Subir o bajar la temperatura del horno 10\,\textdegree C. \\
+        \texttt{E} & Enviar una pieza de la Cinta~4 a la Cinta~5 (horno). \\
+        \texttt{T} / \texttt{H} & (Modo prueba IK) Mover el robot al objetivo / a la posición \textit{home}. \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+% =========================================================
+% 6b. DETECCIÓN DE FORMAS Y PARADA DE CINTAS
+% =========================================================
+\clearpage
+\section{Detección de formas y parada automática de las cintas}
+
+\subsection{Mecanismo de detección de formas}
+
+Toda la visión se realiza dentro de \texttt{CamaraInspeccion}. El método
+\texttt{capturar()} renderiza la cámara MuJoCo asociada (\texttt{cam\_bottom},
+\texttt{cam\_right}, \texttt{cam\_top}, \texttt{cam\_left} o \texttt{cam\_oven}) y
+convierte la imagen de RGB a BGR para OpenCV. Después, \texttt{detectar\_forma()} aplica
+estos pasos:
+
+\begin{enumerate}
+    \item \textbf{Segmentación por color} (\texttt{\_segmentar()}): la imagen se pasa a HSV.
+          La banda, el suelo y las estructuras son grises (saturación baja), mientras que
+          las piezas tienen colores vivos. Se seleccionan los píxeles con saturación
+          $\geq 90$ y brillo $\geq 70$ con \texttt{cv2.inRange()}. Se eligió este método en
+          lugar de una umbralización en escala de grises porque las sombras y los
+          reflejos de la banda daban falsos positivos.
+    \item \textbf{Limpieza morfológica}: una apertura con un núcleo de $5\times5$ elimina
+          puntos sueltos de ruido.
+    \item \textbf{Extracción de contornos} con \texttt{cv2.findContours()}.
+    \item \textbf{Selección del contorno} (\texttt{\_elegir\_contorno()}): se descartan los
+          contornos de área menor que 800 píxeles y los que tocan el borde de la imagen
+          (la pieza aún no se ve entera). Se queda el de mayor área.
+    \item \textbf{Clasificación} (\texttt{\_clasificar()}): se calcula la circularidad
+          $C = 4\pi A / P^2$ (vale 1 en un círculo perfecto) y una aproximación poligonal
+          con \texttt{cv2.approxPolyDP()}.
+\end{enumerate}
+\clearpage
+\begin{lstlisting}[caption={Clasificación de la forma a partir del contorno.}]
+def _clasificar(self, contorno):
+    area = cv2.contourArea(contorno)
+    perimetro = cv2.arcLength(contorno, True)
+    circularidad = 4 * np.pi * area / (perimetro * perimetro)
+    aproximacion = cv2.approxPolyDP(contorno, CAMARA_EPSILON_POLIGONO * perimetro, True)
+    vertices = len(aproximacion)
+
+    if circularidad > CAMARA_CIRCULARIDAD_MIN:
+        return "circulo"
+    # una caja vista un poco de lado enseña también una cara lateral,
+    # por eso su contorno puede tener de 4 a 6 esquinas
+    if 4 <= vertices <= 6:
+        (_, _), (lado1, lado2), _ = cv2.minAreaRect(contorno)
+        proporcion = max(lado1, lado2) / min(lado1, lado2)
+        if proporcion < CAMARA_PROPORCION_CUADRADO:
+            return "cuadrado"
+        return "rectangulo"
+    return "otra"
+\end{lstlisting}
+
+Así se distinguen \textbf{círculo} (cilindros vistos desde arriba, circularidad
+$> 0{,}85$), \textbf{cuadrado} (cubo, proporción del rectángulo mínimo $< 1{,}25$),
+\textbf{rectángulo} (cajas alargadas) y \textbf{otra} para cualquier contorno no
+reconocido. Como las cámaras no están exactamente en la vertical, una caja muestra también
+una cara lateral y su contorno puede tener 5 o 6 vértices; por eso se acepta el rango de 4
+a 6. Todos los umbrales están en \texttt{config.py}, para poder ajustarlos sin tocar la
+clase. El método \texttt{dibujar()} superpone el contorno detectado en verde y el texto
+\textit{DETECTADO: forma}.
+
+\subsection{Variable booleana \texttt{objeto\_detectado}}
+
+Cada cámara tiene el atributo booleano \texttt{objeto\_detectado}, que se recalcula en cada
+fotograma dentro de \texttt{actualizar()}: vale \texttt{True} cuando
+\texttt{detectar\_forma()} devuelve una forma y \texttt{False} cuando devuelve
+\texttt{None}.
+
+\begin{lstlisting}[caption={Actualización de la cámara y comunicación con la cinta.}]
+def actualizar(self, renderer, data):
+    imagen = self.capturar(renderer, data)
+    self.forma_detectada = self.detectar_forma(imagen)
+    self.objeto_detectado = self.forma_detectada is not None
+    self._controlar_cinta(data.time)
+    return imagen
+\end{lstlisting}
+\clearpage
+El método \texttt{\_controlar\_cinta()} usa esa variable para gobernar la cinta asociada.
+Si se detendiera la cinta siempre que \texttt{objeto\_detectado} fuese verdadero, la pieza
+quedaría parada para siempre bajo la cámara. Por eso se ha implementado un pequeño ciclo
+de inspección controlado:
+
+\begin{enumerate}
+    \item Cuando aparece una pieza (\texttt{objeto\_detectado == True}) y no se estaba
+          inspeccionando, se llama a \texttt{self.cinta.detener()}, se anota el instante y
+          se incrementa \texttt{piezas\_inspeccionadas}.
+    \item Mientras dura la inspección (1,5~s de tiempo simulado) la cinta permanece
+          parada.
+    \item Al terminar, la cámara llama a \texttt{self.cinta.arrancar()} y marca la pieza
+          como \textit{liberada} (\texttt{\_pieza\_liberada}), para no volver a parar la
+          cinta por la misma pieza mientras sale del campo de visión.
+    \item Cuando la pieza sale de la imagen (\texttt{objeto\_detectado == False}) se borra
+          la marca y la cámara queda lista para la siguiente pieza.
+\end{enumerate}
+
+De esta forma se cumple el comportamiento mínimo (\textit{si hay pieza, la cinta se
+detiene}) y la decisión de reanudar la cinta queda aislada en un único método. En la
+Práctica~II bastará con cambiar \texttt{\_controlar\_cinta()} (por ejemplo, para desviar
+la pieza según su forma) sin modificar ni la visión ni la cinta.
+
+% =========================================================
+% 6c. HORNO
+% =========================================================
+\clearpage
+\section{Clase Horno: temperatura y color en MuJoCo}
+
+La clase \texttt{Horno} encapsula todo lo relativo al final de la línea. Sus atributos
+principales son:
+
+\begin{itemize}
+    \item \texttt{numero\_piezas}: piezas recibidas, y \texttt{pieza\_nueva}: si acaba de
+          entrar una pieza.
+    \item \texttt{encendido}: estado del horno, y la propiedad \texttt{estado}, que devuelve
+          \texttt{APAGADO}, \texttt{CALENTANDO} (por debajo de la temperatura mínima) o
+          \texttt{LISTO}.
+    \item \texttt{temperatura}: temperatura actual (inicial 20\,\textdegree C).
+    \item \texttt{temperatura\_minima} (60\,\textdegree C) y \texttt{temperatura\_maxima}
+          (220\,\textdegree C) de funcionamiento, y \texttt{temperatura\_alta}
+          (150\,\textdegree C) para el cambio a rojo.
+    \item \texttt{geom\_id}: identificador del \textit{geom} \texttt{oven\_roof} (techo del
+          horno) en el modelo MuJoCo, que se obtiene en \texttt{conectar()}.
+\end{itemize}
+
+La temperatura solo se modifica mediante métodos:
+\texttt{aumentar\_temperatura()} y \texttt{disminuir\_temperatura()} la limitan al rango
+permitido, \texttt{actualizar(dt)} la hace subir 5\,\textdegree C/s si el horno está
+encendido o bajar 4\,\textdegree C/s si está apagado, y \texttt{registrar\_pieza()} resta
+5\,\textdegree C porque la pieza fría absorbe calor. Además, el usuario puede apagar o
+encender el horno (\texttt{O}) y subir o bajar la temperatura manualmente (\texttt{+} y
+\texttt{-}). Una pieza entra en el horno cuando, estando en la Cinta~5, su coordenada
+$x$ supera la boca del horno (\texttt{detectar\_entrada()}); entonces se registra y la
+pieza reaparece en la Cinta~1 para seguir circulando.
+
+\begin{lstlisting}[caption={Cambio de color del horno según la temperatura.}]
+def actualizar_color(self, model):
+    if self.temperatura < self.temperatura_minima:
+        color = self.AZUL
+    elif self.temperatura < self.temperatura_alta:
+        color = self.NARANJA
+    else:
+        color = self.ROJO
+    model.geom_rgba[self.geom_id] = color
+\end{lstlisting}
+
+\begin{table}[H]
+    \centering
+    \caption{Codificación visual de la temperatura del horno.}
+    \label{tab:horno}
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Rango de temperatura} & \textbf{Estado} & \textbf{Color del techo} \\
+        \midrule
+        $T < 60$\,\textdegree C & CALENTANDO & Azul \\
+        $60 \leq T < 150$\,\textdegree C & LISTO & Naranja \\
+        $T \geq 150$\,\textdegree C & LISTO (alta) & Rojo \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\texttt{actualizar\_color()} se llama en cada paso de \texttt{PlantaIndustrial.actualizar()},
+justo después de \texttt{horno.actualizar(dt)}, por lo que el cambio se ve en directo en el
+visor de MuJoCo. Al modificar \texttt{model.geom\_rgba} se cambia el color del modelo, no
+de un dato global, y todo el control térmico queda dentro de la clase.
+
+% =========================================================
+% 7. MANEJO DE ERRORES Y VALIDACIONES
+% =========================================================
+
+\section{Manejo de errores y validaciones}
+
+\begin{itemize}
+    \item \textbf{Validación de parámetros}: la velocidad de una cinta negativa lanza
+          \texttt{ValueError}; un tipo de pieza desconocido en la configuración lanza
+          \texttt{ValueError} al crear los objetos.
+    \item \textbf{Elementos inexistentes en el modelo}: si no se encuentra un actuador de
+          rodillo o el \textit{geom} del horno, \texttt{conectar()} lanza
+          \texttt{RuntimeError} con el nombre que falta, en lugar de fallar más adelante
+          con un índice $-1$.
+    \item \textbf{Valores fuera de rango}: la temperatura del horno se limita entre la
+          ambiente y la máxima; las fuerzas de transporte se recortan a
+          \texttt{MAX\_FORCE}.
+    \item \textbf{Piezas perdidas}: \texttt{se\_ha\_caido()} detecta si una pieza sale de
+          los límites de la planta y la planta la recoloca en la Cinta~1.
+    \item \textbf{Robot}: la máquina de estados proporcionada reinicia el ciclo si una
+          fase de IK no converge en 7~s.
+    \item \textbf{Modelo del Panda}: si no se encuentra \texttt{panda.xml}, se descarga
+          automáticamente MuJoCo Menagerie; si falla, se muestra un mensaje explicando
+          cómo clonarlo a mano.
+    \item \textbf{Cierre ordenado}: \texttt{ejecutar()} usa \texttt{try/finally} para
+          cerrar siempre el visor, el renderizador y las ventanas de OpenCV.
+    \item \textbf{Acciones sin efecto}: si se pulsa \texttt{E} y no hay pieza en la
+          Cinta~4, se informa por consola en lugar de producir un error.
+\end{itemize}
+
+% =========================================================
+% 8. PRUEBAS
+% =========================================================
+\clearpage
+\section{Pruebas y validación}
+
+Se han realizado las pruebas mínimas que pide el enunciado ejecutando la simulación y
+observando el visor, el mosaico de cámaras y los mensajes de consola.
+
+\begin{table}[H]
+    \centering
+    \caption{Plan de pruebas.}
+    \label{tab:pruebas}
+    \small
+    \begin{tabularx}{\textwidth}{p{1.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X p{1.5cm}}
+        \toprule
+        \textbf{Prueba} & \textbf{Entrada / escenario} & \textbf{Resultado esperado} & \textbf{Estado} \\
+        \midrule
+        P01 & Ejecutar \texttt{python main.py}. & Se abren el visor MuJoCo y la ventana de cámaras. & Correcto \\
+        P02 & Pulsar \texttt{2} dos veces. & La Cinta~2 se detiene (rodillos parados, \texttt{C2:OFF}) y vuelve a arrancar. & Correcto \\
+        P03 & Detener la Cinta~1 con el resto en marcha. & Solo se paran las piezas de la Cinta~1; las demás cintas siguen. & Correcto \\
+        P04 & Observar el mosaico. & Las cinco cámaras y la vista general muestran imagen actualizada. & Correcto \\
+        P05 & Pasar un cilindro bajo una cámara. & Se detecta \texttt{circulo}. & Correcto \\
+        P06 & Pasar el cubo y las cajas bajo una cámara. & Se detecta \texttt{cuadrado} / \texttt{rectangulo}. & Correcto$^{*}$ \\
+        P07 & Pieza entra en el campo de la cámara. & \texttt{objeto\_detectado} pasa a \texttt{True}; al salir, a \texttt{False}. & Correcto \\
+        P08 & \texttt{objeto\_detectado == True}. & La cinta asociada se detiene y aparece \texttt{OFF} en la barra. & Correcto \\
+        P09 & Fin de la inspección (1,5~s). & La cámara rearranca la cinta y no vuelve a pararla por la misma pieza. & Correcto \\
+        P10 & Pulsar \texttt{+}, \texttt{-} y \texttt{O}. & La temperatura sube/baja 10\,\textdegree C; al apagar el horno se enfría. & Correcto \\
+        P11 & Dejar calentar el horno. & El techo pasa de azul a naranja (60\,\textdegree C) y a rojo (150\,\textdegree C). & Correcto \\
+        P12 & Pulsar \texttt{E}. & La pieza va a la Cinta~5, entra al horno, se cuenta y la temperatura baja 5\,\textdegree C. & Correcto \\
+        P13 & Modo prueba IK, teclas \texttt{T} y \texttt{H}. & El Panda se mueve hacia el objetivo y hacia \textit{home} usando la IK proporcionada, sin reimplementarla. & \pendiente{Revisar} \\
+        P14 & Pulsar \texttt{R}. & Piezas, cintas, cámaras, horno y robot vuelven al estado inicial. & Correcto \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+{\small $^{*}$ El cubo se clasifica como \texttt{cuadrado} en la mayoría de fotogramas,
+pero en la Cinta~4, donde la cámara lo ve más inclinado, algún fotograma lo clasifica como
+\texttt{rectangulo} porque la cara lateral alarga el contorno (ver
+sección~\ref{sec:discusion}).}
+
+% =========================================================
+% 9. RESULTADOS
+% =========================================================
+\clearpage
+\section{Resultados}
+
+La Figura~\ref{fig:general} muestra la planta completa en el visor: el circuito de cuatro
+cintas, la Cinta~5 hacia el horno, las cámaras sobre postes y el robot Panda en la isla
+central.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{overview_inicio.png}
+    \caption{Vista general de la planta en MuJoCo.}
+    \label{fig:general}
+\end{figure}
+
+La Figura~\ref{fig:mosaico} es la ventana de OpenCV durante la ejecución. Las cámaras de
+las cintas 1 y 2 han detectado cilindros (\texttt{circulo}), la de la Cinta~3 una caja
+(\texttt{rectangulo}) y la de la Cinta~4 el cubo (\texttt{cuadrado}). En la barra inferior
+se ve que las cintas 1, 2 y 3 están en \texttt{OFF} porque sus cámaras están
+inspeccionando (texto en rojo), mientras que la Cinta~4 ya ha terminado la inspección y
+vuelve a estar en marcha (texto en verde).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{mosaico_deteccion.png}
+    \caption{Mosaico de cámaras con detección de formas y parada automática de cintas.}
+    \label{fig:mosaico}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{det_circulo.png}
+        \caption{Cilindro: círculo.}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{det_cuadrado.png}
+        \caption{Cubo: cuadrado.}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{det_rectangulo.png}
+        \caption{Caja: rectángulo.}
+    \end{subfigure}
+    \caption{Ejemplos de clasificación de las formas en las cámaras de inspección.}
+    \label{fig:formas}
+\end{figure}
+
+La Figura~\ref{fig:horno} muestra el horno en el visor de MuJoCo a distintas temperaturas:
+el techo (\texttt{oven\_roof}) cambia de azul a naranja y a rojo conforme el horno se calienta.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{horno_azul.png}
+        \caption{$T < 60$\,\textdegree C: azul.}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{horno_naranja.png}
+        \caption{$60 \leq T < 150$\,\textdegree C: naranja.}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{horno_rojo.png}
+        \caption{$T \geq 150$\,\textdegree C: rojo.}
+    \end{subfigure}
+    \caption{Cambio de color del horno en MuJoCo según su temperatura.}
+    \label{fig:horno}
+\end{figure}
+
+Por consola se registran los eventos de la planta, por ejemplo:
+
+\begin{lstlisting}[language={},numbers=none,caption={Mensajes de consola durante la ejecución.}]
+[CINTA 1 - INFERIOR] pieza detectada: circulo -> cinta 1 parada
+[CINTA 4 - IZQUIERDA] pieza detectada: cuadrado -> cinta 4 parada
+[CINTA 4 - IZQUIERDA] inspección terminada -> cinta 4 en marcha
+obj0 (cubo) enviado a la Cinta 5
+[Horno] entra obj0 (cubo) -> total 1
+\end{lstlisting}
+
+% =========================================================
+% 10. DISCUSIÓN
+% =========================================================
+
+\section{Discusión}
+\label{sec:discusion}
+
+\textbf{Ventajas de la arquitectura.} Cada clase tiene una sola responsabilidad y se
+comunica con las demás a través de métodos. La cámara no sabe cómo se mueve una cinta;
+solo llama a \texttt{detener()} y \texttt{arrancar()}. La cinta no sabe que existe una
+cámara. Gracias a esto, añadir un nuevo sensor o una nueva decisión en la Práctica~II no
+obliga a cambiar el resto de clases.
+
+\textbf{Configuración centralizada.} Todas las constantes (geometría, ganancias, umbrales
+de visión, rangos de temperatura, piezas y posiciones iniciales) están en
+\texttt{config.py}. Las piezas y las cintas se crean recorriendo tablas, de modo que
+añadir una pieza nueva es añadir una línea a \texttt{PIEZAS}. Las únicas variables
+globales que quedan son constantes, no estado de la planta.
+
+\textbf{Encadenamiento de cintas.} Sustituir los índices de segmento por la referencia
+\texttt{siguiente} eliminó los condicionales por número de cinta del código original:
+cada cinta sabe por sí misma hacia dónde mueve las piezas y cuál le sigue.
+
+\textbf{Adaptador del robot.} Envolver \texttt{robot.py} en \texttt{RobotPanda} permitió
+cumplir el requisito de no reimplementar la IK y, a la vez, integrar el robot como un objeto
+más. El inconveniente es que \texttt{robot.py} sigue trabajando con diccionarios y listas,
+por lo que \texttt{RobotPanda} tiene que traducir los datos en cada paso.
+
+\textbf{Decisiones que podrían mejorarse.}
+\begin{itemize}
+    \item La clasificación entre cuadrado y rectángulo depende de la perspectiva de la
+          cámara. Para hacerla más robusta se podría corregir la perspectiva o usar varias
+          imágenes seguidas y quedarse con la forma más repetida.
+    \item \texttt{PlantaIndustrial} sigue teniendo bastantes tareas (bucle, mosaico,
+          teclado). Se podrían separar en clases como \texttt{SistemaVision} (mosaico) o
+          \texttt{ControladorPlanta} (teclado y decisiones).
+    \item La comunicación cámara--cinta es directa. Para más sensores, un controlador
+          intermedio que reciba las detecciones y decida qué hacer reduciría el
+          acoplamiento.
+    \item Python no impide acceder a atributos con guion bajo; la encapsulación se basa en
+          la convención.
+\end{itemize}
+
+\textbf{Extensiones futuras (Práctica~II).} Clasificar las piezas según su forma o color
+y enviarlas al horno solo si cumplen una condición, que el robot recoja únicamente
+determinadas piezas, o que el horno solo acepte piezas cuando su estado sea
+\texttt{LISTO}. Todas estas decisiones pueden añadirse en \texttt{\_controlar\_cinta()} o
+en un nuevo controlador sin tocar la física ni la visión.
+
+% =========================================================
+% 11. CONCLUSIONES
+% =========================================================
+
+\section{Conclusiones}
+
+Se ha transformado la simulación procedural de la planta en una arquitectura orientada a
+objetos con las clases \texttt{PlantaIndustrial}, \texttt{CintaTransportadora},
+\texttt{CamaraInspeccion}, \texttt{ObjetoIndustrial} (con \texttt{Caja} y
+\texttt{Cilindro}), \texttt{Horno} y \texttt{RobotPanda}. La simulación sigue
+funcionando en MuJoCo con la visualización de cámaras en OpenCV y el robot con la IK
+proporcionada.
+
+Se han cumplido los objetivos planteados: las banderas globales de las cintas han
+desaparecido y cada cinta gestiona su estado; las cámaras detectan las piezas y
+reconocen su forma con OpenCV; la variable \texttt{objeto\_detectado} detiene la cinta
+correspondiente y la reanudación se decide de forma controlada; y el horno gestiona su
+temperatura con métodos propios y la muestra mediante el color en MuJoCo.
+
+Más allá de que el programa funcione, la práctica ha servido para comprobar en un caso
+real cómo la encapsulación, la composición y la separación de responsabilidades hacen que
+el código sea más fácil de entender, probar y ampliar. El resultado deja preparada una
+base modular para la Práctica~II.
+
+% =========================================================
+% 12. CONTRIBUCIÓN INDIVIDUAL
+% =========================================================
+
+\section{Contribución individual}
+
+\begin{table}[H]
+    \centering
+    \caption{Contribución de los integrantes del grupo.}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm}X}
+        \toprule
+        \textbf{Estudiante} & \textbf{Contribución} \\
+        \midrule
+        \nombrealumno & Análisis del código procedural, diseño de clases, refactorización, implementación de la detección de formas y del control del horno, pruebas y redacción del informe. \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+% =========================================================
+% 13. USO DE INTELIGENCIA ARTIFICIAL
+% =========================================================
+\clearpage
+\section{Declaración sobre el uso de herramientas de inteligencia artificial}
+
+\begin{quote}
+Para hacer este informe me he apoyado en una IA generativa (Claude), sobre todo para la redacción, la maquetación en LaTeX y para sacar el diagrama de clases. Aun así, he revisado todo lo que me ha generado y lo he corregido donde hacía falta, para asegurarme de que el contenido está bien y refleja el trabajo que he hecho.
+\end{quote}
+
+% =========================================================
+% 14. REFERENCIAS
+% =========================================================
+
+\addcontentsline{toc}{section}{Referencias}
+\begin{thebibliography}{9}
+
+\bibitem{enunciado}
+Universidad de Burgos,
+\textit{Práctica I: Refactorización de una Planta Industrial mediante Programación
+Orientada a Objetos}, Programación Modular y Orientada a Objetos, curso 2026--2027.
+
+\bibitem{mujoco}
+E. Todorov, T. Erez e Y. Tassa,
+``MuJoCo: A physics engine for model-based control'',
+\textit{IEEE/RSJ International Conference on Intelligent Robots and Systems}, 2012.
+\url{https://mujoco.readthedocs.io}
+
+\bibitem{menagerie}
+Google DeepMind,
+\textit{MuJoCo Menagerie: Franka Emika Panda}.
+\url{https://github.com/google-deepmind/mujoco_menagerie}
+
+\bibitem{opencv}
+OpenCV,
+\textit{Contour Features}, documentación de OpenCV.
+\url{https://docs.opencv.org}
+
+\bibitem{gamma}
+E. Gamma, R. Helm, R. Johnson y J. Vlissides,
+\textit{Design Patterns: Elements of Reusable Object-Oriented Software},
+Addison-Wesley.
+
+\bibitem{martin}
+R. C. Martin,
+\textit{Clean Code: A Handbook of Agile Software Craftsmanship},
+Prentice Hall.
+
+\bibitem{uml}
+Object Management Group,
+\textit{Unified Modeling Language (UML)}.
+
+\end{thebibliography}
+
+% =========================================================
+% ANEXOS
+% =========================================================
+
+\newpage
+\appendix
+
+\section{Código fuente y repositorio}
+
+El código completo del proyecto está disponible en el repositorio GitHub:
+
+\begin{center}
+    \large\url{\repositorio}
+\end{center}
+
+\textbf{Instalación y ejecución:}
+
+\begin{lstlisting}[language=bash,numbers=none]
+python -m venv .venv
+.venv\Scripts\activate          # en Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+python main.py
+\end{lstlisting}
+
+La primera vez, si no se encuentra el modelo del Panda, el programa descarga
+automáticamente la carpeta \texttt{franka\_emika\_panda} de MuJoCo Menagerie dentro de
+\texttt{src/vendor/} (requiere \texttt{git}). También se puede indicar una copia local con
+la variable de entorno \texttt{MUJOCO\_MENAGERIE\_PATH}.
+
+Para probar el \textit{pick-and-place} automático del robot en lugar del modo de prueba de
+la IK, basta con crear la planta con \texttt{PlantaIndustrial(modo\_prueba\_ik=False)} en
+\texttt{main.py}.
+
+\section{Material adicional}
+
+\subsection*{Parámetros de visión}
+
+\begin{table}[H]
+    \centering
+    \caption{Parámetros de detección definidos en \texttt{config.py}.}
+    \small
+    \begin{tabularx}{\textwidth}{p{6.6cm}lX}
+        \toprule
+        \textbf{Constante} & \textbf{Valor} & \textbf{Uso} \\
+        \midrule
+        \texttt{CAMARA\_UMBRAL\_SATURACION} & 90 & Saturación mínima (HSV) de una pieza \\
+        \texttt{CAMARA\_UMBRAL\_BRILLO} & 70 & Brillo mínimo (HSV) de una pieza \\
+        \texttt{CAMARA\_AREA\_MINIMA} & 800 px & Área mínima del contorno \\
+        \texttt{CAMARA\_MARGEN\_BORDE} & 3 px & Descarta contornos que tocan el borde \\
+        \texttt{CAMARA\_NUCLEO\_MORFOLOGIA} & 5 & Tamaño del núcleo de apertura \\
+        \texttt{CAMARA\_CIRCULARIDAD\_MIN} & 0,85 & Umbral para \texttt{circulo} \\
+        \texttt{CAMARA\_EPSILON\_POLIGONO} & 0,04 & Tolerancia de \texttt{approxPolyDP} \\
+        \texttt{CAMARA\_PROPORCION\_CUADRADO} & 1,25 & Límite cuadrado / rectángulo \\
+        \texttt{CAMARA\_TIEMPO\_INSPECCION} & 1,5 s & Tiempo de parada por pieza \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\end{document}
